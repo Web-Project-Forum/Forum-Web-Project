@@ -38,12 +38,13 @@ CREATE TABLE IF NOT EXISTS `webproject`.`users` (
   `id` INT(11) NOT NULL AUTO_INCREMENT,
   `username` VARCHAR(45) NOT NULL,
   `password` VARCHAR(45) NOT NULL,
-  `role` VARCHAR(45) NOT NULL,
+  `role` VARCHAR(45) NOT NULL DEFAULT 'user',
   `email` VARCHAR(45) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE INDEX `username_UNIQUE` (`username` ASC) VISIBLE,
   UNIQUE INDEX `email_UNIQUE` (`email` ASC) VISIBLE)
 ENGINE = InnoDB
+AUTO_INCREMENT = 3
 DEFAULT CHARACTER SET = latin1;
 
 

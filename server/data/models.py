@@ -31,3 +31,35 @@ class Topic(BaseModel):
             best_reply = best_reply,
             locked = locked,
             categories_id = categories_id)
+    
+class Role:
+    USER = 'user'
+    ADMIN = 'admin'
+
+
+TUsername = constr(pattern='^\w{2,30}$')
+
+
+class User(BaseModel):
+    id: int | None
+    username: TUsername
+    password: str
+    role: str
+    email:str
+
+    def is_admin(self):
+        return self.role == Role.ADMIN
+
+    @classmethod
+    def from_query_result(cls, id, username, password, role, email):
+        return cls(
+            id=id,
+            username=username,
+            password=password,
+            role=role,
+            email=email)
+
+
+class LoginData(BaseModel):
+    username: TUsername
+    password: str

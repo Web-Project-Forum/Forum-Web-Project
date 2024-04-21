@@ -5,10 +5,10 @@ from services import topic_service
 from services import category_service
 
 
-topic_router = APIRouter(prefix='/topics')
+topics_router = APIRouter(prefix='/topics')
 
 
-@topic_router.get('/', response_model=list[Topic])
+@topics_router.get('/', response_model=list[Topic])
 def get_topics(
     sort: str | None = None,
     sort_by: str | None = None,
@@ -22,7 +22,7 @@ def get_topics(
         return result
 
 
-@topic_router.get('/{id}')
+@topics_router.get('/{id}')
 def get_topic_by_id(id: int):
     Topic = topic_service.get_by_id(id)
 
@@ -32,7 +32,7 @@ def get_topic_by_id(id: int):
         return Topic
 
 
-@topic_router.post('/', status_code=201)
+@topics_router.post('/', status_code=201)
 def create_topic(topic: Topic):
     if not category_service.exists(topic.categories_id):
         return BadRequest('Category {topic.categories_id} does not exist')
@@ -40,7 +40,7 @@ def create_topic(topic: Topic):
     return topic_service.create(topic)
 
 
-@topic_router.put('/{id}')
+@topics_router.put('/{id}')
 def update_topic(id: int, topic: Topic):
     if not category_service.exists(topic.categories_id):
         return BadRequest(f'Category {topic.categories_id} does not exist')
