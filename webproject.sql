@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS `webproject`.`users` (
   UNIQUE INDEX `username_UNIQUE` (`username` ASC) VISIBLE,
   UNIQUE INDEX `email_UNIQUE` (`email` ASC) VISIBLE)
 ENGINE = InnoDB
-AUTO_INCREMENT = 3
+AUTO_INCREMENT = 4
 DEFAULT CHARACTER SET = latin1;
 
 
@@ -107,12 +107,19 @@ CREATE TABLE IF NOT EXISTS `webproject`.`topics` (
   `best_reply` INT(11) NULL DEFAULT 0,
   `locked` TINYINT(4) NOT NULL DEFAULT 0,
   `categories_id` INT(11) NOT NULL,
+  `users_id` INT(11) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE INDEX `title_UNIQUE` (`title` ASC) VISIBLE,
   INDEX `fk_topics_categories1_idx` (`categories_id` ASC) VISIBLE,
+  INDEX `fk_topics_users1_idx` (`users_id` ASC) VISIBLE,
   CONSTRAINT `fk_topics_categories1`
     FOREIGN KEY (`categories_id`)
     REFERENCES `webproject`.`categories` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_topics_users1`
+    FOREIGN KEY (`users_id`)
+    REFERENCES `webproject`.`users` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
