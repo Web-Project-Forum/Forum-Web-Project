@@ -13,6 +13,31 @@ def all(search):
     
     return (Category.from_query_result(*row) for row in data)
 
+def all_non_private(search):
+    if search is None:
+        data = read_query('select id, name, is_private from categories where is_private=0')
+    
+    else:
+        data = read_query('''select id, name, is_private 
+                          from categories 
+                          where is_private=0 and name like ?''',(f'%{search}%',))
+    
+    return (Category.from_query_result(*row) for row in data)
+
+def private(search, user_id:int):
+    categories_id = get_private_categories(user_id)
+    if search is None:
+        data = read_query('''select id, name, is_private 
+                          from categories 
+                          where is_private = 0
+                          or id in (?) ''',tuple(categories_id))
+
+    
+    else:
+        temp = list(categories_id)
+        data = read_query('''select id, name, is_private from categories where (is_private = 0 or id in (?)) and name like ?''', (list(categories_id), (f'%{search}%')))
+        
+    return (Category.from_query_result(*row) for row in data)
 
 def get_by_id(id: int):
     data = read_query('select id, name, is_private from categories where id = ?', (id,))
@@ -55,3 +80,10 @@ def sort(Categorys: list[Category], *, attribute='', reverse=False):
         def sort_fn(p: Category): return p.id
 
     return sorted(Categorys, key=sort_fn, reverse=reverse)
+
+def get_private_categories(user_id:int) -> set: 
+    data = read_query(
+        'SELECT categories_id from permissions where users_id = ?', (user_id,))
+    
+    return set(i[0] for i in data)
+    

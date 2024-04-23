@@ -5,12 +5,12 @@ from data.database import insert_query, read_query, update_query
 def all(search: str = None):
     if search is None:
         data = read_query(
-            '''SELECT id, title, content, best_reply, locked, categories_id
+            '''SELECT id, title, content, best_reply, locked, categories_id, users_id
                FROM topics
                ''')
     else:
         data = read_query(
-            '''SELECT id, title, content, best_reply, locked, categories_id
+            '''SELECT id, title, content, best_reply, locked, categories_id, users_id
                FROM topics
 
                WHERE title LIKE ?''', (f'%{search}%',))
@@ -20,7 +20,7 @@ def all(search: str = None):
 
 def get_by_id(id: int):
     data = read_query(
-        '''SELECT id, title, content, best_reply, locked, categories_id
+        '''SELECT id, title, content, best_reply, locked, categories_id, users_id
             FROM topics
 
             WHERE id = ?''', (id,))
@@ -31,7 +31,7 @@ def get_by_id(id: int):
 def get_many(ids: list[int]):
     ids_joined = ','.join(str(id) for id in ids)
     data = read_query(f'''
-            SELECT id, title, content, best_reply, locked, categories_id
+            SELECT id, title, content, best_reply, locked, categories_id, users_id
             FROM topics
 
             WHERE id IN ({ids_joined})''')
@@ -41,7 +41,7 @@ def get_many(ids: list[int]):
 
 def get_by_category(category_id: int):
     data = read_query(
-        '''SELECT id, title, content, best_reply, locked, categories_id
+        '''SELECT id, title, content, best_reply, locked, categories_id, users_id
             FROM topics
             WHERE categories_id = ?''', (category_id,)
              )

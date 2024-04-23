@@ -1,9 +1,10 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Header
 from pydantic import BaseModel
-from data.models import Category,Topic
+from data.models import Category,Topic,Role
 from services import topic_service
 from services import category_service
 from common.responses import NotFound, BadRequest, Ok
+from common.auth import get_user_or_raise_401
 
 
 class CategoryResponseModel(BaseModel):
@@ -18,10 +19,19 @@ categories_router = APIRouter(prefix='/categories')
 def get_catgories(
     sort: str | None = None,
     sort_by: str | None = None,
-    search: str | None = None
+    search: str | None = None,
+    x_token: str | None = Header()
 ):
+    if not x_token :
+        data = category_service.all_non_private(search)
 
-    data = category_service.all(search)
+    else:
+        user = get_user_or_raise_401(x_token)
+        if user.role == Role.ADMIN:
+            data = category_service.all(search)
+        else:
+            data = category_service.private(search, user.id)
+
 
     if sort and (sort == 'asc' or sort == 'desc'):
         return category_service.sort(data, reverse=sort == 'desc', attribute=sort_by)

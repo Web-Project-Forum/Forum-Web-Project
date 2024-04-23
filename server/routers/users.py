@@ -21,7 +21,9 @@ def login(data: LoginData):
 
 
 @users_router.get('/info')
-def user_info(x_token: str = Header()):
+def user_info(x_token: str | None = Header()):
+    if  not x_token :
+        return BadRequest('No No')
     return get_user_or_raise_401(x_token)
 
 

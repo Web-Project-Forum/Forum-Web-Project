@@ -24,6 +24,7 @@ CREATE TABLE IF NOT EXISTS `webproject`.`categories` (
   `id` INT(11) NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(45) NOT NULL,
   `is_private` TINYINT(4) NOT NULL DEFAULT 0,
+  `is_locked` TINYINT(4) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
   UNIQUE INDEX `name_UNIQUE` (`name` ASC) VISIBLE)
 ENGINE = InnoDB
