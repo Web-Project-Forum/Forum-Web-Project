@@ -7,3 +7,8 @@ id in (3,4)
 AND
 name like "%e%"
 
+select * from permissions
+
+select * from categories
+
+select * from users

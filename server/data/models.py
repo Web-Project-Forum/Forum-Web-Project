@@ -6,13 +6,15 @@ class Category(BaseModel):
     id:int | None
     name:str
     is_private:int
+    is_locked:int
 
     @classmethod
-    def from_query_result(cls, id, name, is_private):
+    def from_query_result(cls, id, name, is_private, is_locked):
         return cls(
             id = id,
             name = name,
-            is_private = is_private
+            is_private = is_private,
+            is_locked = is_locked
         )
 
 class Topic(BaseModel):
