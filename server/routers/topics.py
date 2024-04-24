@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from common.responses import BadRequest, NotFound
 from data.models import Topic
 from services import topic_service
@@ -24,25 +24,25 @@ def get_topics(
 
 @topics_router.get('/{id}')
 def get_topic_by_id(id: int):
-    Topic = topic_service.get_by_id(id)
+    topic = topic_service.get_by_id(id)
 
-    if Topic is None:
-        return NotFound()
-    else:
-        return Topic
+    if not topic:
+        raise HTTPException(status_code=404, detail="Topic not found!")
+
+    return topic
 
 
 @topics_router.post('/', status_code=201)
 def create_topic(topic: Topic):
-    if not category_service.exists(topic.categories_id):
-        return BadRequest('Category {topic.categories_id} does not exist')
+    if not category_service.exist(topic.categories_id):
+        return BadRequest(f'Category {topic.categories_id} does not exist')
 
     return topic_service.create(topic)
 
 
 @topics_router.put('/{id}')
 def update_topic(id: int, topic: Topic):
-    if not category_service.exists(topic.categories_id):
+    if not category_service.exist(topic.categories_id):
         return BadRequest(f'Category {topic.categories_id} does not exist')
 
     existing_topic = topic_service.get_by_id(id)

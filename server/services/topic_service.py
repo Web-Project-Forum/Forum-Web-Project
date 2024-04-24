@@ -2,21 +2,21 @@ from data.models import Topic
 from data.database import insert_query, read_query, update_query
 
 
-def all(search: str = None):
+
+def all(search: str = None, offset: int = 0, limit: int = 4):
     if search is None:
         data = read_query(
             '''SELECT id, title, content, best_reply, locked, categories_id, users_id
                FROM topics
-               ''')
+               LIMIT ?, ?''', (offset, limit))
     else:
         data = read_query(
             '''SELECT id, title, content, best_reply, locked, categories_id, users_id
                FROM topics
+               WHERE title LIKE ?
+               LIMIT ?, ?''', (f'%{search}%', offset, limit))
 
-               WHERE title LIKE ?''', (f'%{search}%',))
-
-    return (Topic.from_query_result(*row) for row in data)
-
+    return [Topic.from_query_result(*row) for row in data]
 
 def get_by_id(id: int):
     data = read_query(
@@ -61,16 +61,21 @@ def sort(topics: list[Topic], *, attribute='best_reply', reverse=False):
     , key=sort_fn, reverse=reverse)
 
 
-def create(Topic: Topic):
+def create(topic: Topic):
     generated_id = insert_query(
         'INSERT INTO topics(title, content, best_reply, locked, categories_id) VALUES(?,?,?,?,?)',
-        (Topic.title, Topic.content, Topic.best_reply, Topic.locked, Topic.categories_id
+        (topic.title, topic.content, topic.best_reply, topic.locked, topic.categories_id
         ))
 
-    Topic.id = generated_id
+    topic.id = generated_id
 
-    return Topic
+    return topic
 
+def exist(id: int):
+    return any(
+        read_query(
+            'select id, title, content, best_reply, locked, categories_id, users_id where id = ?',
+            (id,)))
 
 def update(old: Topic, new: Topic):
     merged = Topic(
