@@ -30,3 +30,12 @@ def create(reply: Reply):
     reply.id = generated_id
 
     return reply
+
+def get_by_topic(topics_id: int):
+    data = read_query(
+        '''SELECT id, text, best_reply_text, topics_id, best_reply_id, author_id
+            FROM replies
+            WHERE topics_id = ?''', (topics_id,)
+             )
+
+    return (Reply.from_query_result(*row) for row in data)
