@@ -1,12 +1,16 @@
 from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel
 from common.responses import BadRequest, NotFound
-from data.models import Topic
-from services import topic_service
-from services import category_service
+from data.models import Reply, Topic
+from services import topic_service, category_service, reply_service
+
 
 
 topics_router = APIRouter(prefix='/topics')
 
+class TopicResponseModel(BaseModel):
+    topic: Topic
+    replies: list[Reply]
 
 @topics_router.get('/', response_model=list[Topic])
 def get_topics(
@@ -28,8 +32,11 @@ def get_topic_by_id(id: int):
 
     if not topic:
         raise HTTPException(status_code=404, detail="Topic not found!")
+    
+    return TopicResponseModel(
+        topic= topic,
+        replies= reply_service.get_by_topic(topic.id))
 
-    return topic
 
 
 @topics_router.post('/', status_code=201)
