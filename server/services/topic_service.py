@@ -3,7 +3,7 @@ from data.database import insert_query, read_query, update_query
 
 
 
-def all(search: str = None, offset: int = 0, limit: int = 4):
+def all(search: str = None, offset: int = 0, limit: int = 2):
     if search is None:
         data = read_query(
             '''SELECT id, title, content, best_reply, locked, categories_id, users_id
@@ -18,6 +18,8 @@ def all(search: str = None, offset: int = 0, limit: int = 4):
 
     return [Topic.from_query_result(*row) for row in data]
 
+
+
 def get_by_id(id: int):
     data = read_query(
         '''SELECT id, title, content, best_reply, locked, categories_id, users_id
@@ -26,6 +28,7 @@ def get_by_id(id: int):
             WHERE id = ?''', (id,))
 
     return next((Topic.from_query_result(*row) for row in data), None)
+
 
 
 def get_many(ids: list[int]):
@@ -39,6 +42,7 @@ def get_many(ids: list[int]):
     return [Topic.from_query_result(*row) for row in data]
 
 
+
 def get_by_category(category_id: int):
     data = read_query(
         '''SELECT id, title, content, best_reply, locked, categories_id, users_id
@@ -47,6 +51,7 @@ def get_by_category(category_id: int):
              )
 
     return (Topic.from_query_result(*row) for row in data)
+
 
 
 def sort(topics: list[Topic], *, attribute='best_reply', reverse=False):
@@ -61,21 +66,27 @@ def sort(topics: list[Topic], *, attribute='best_reply', reverse=False):
     , key=sort_fn, reverse=reverse)
 
 
+
+
 def create(topic: Topic):
     generated_id = insert_query(
-        'INSERT INTO topics(title, content, best_reply, locked, categories_id) VALUES(?,?,?,?,?)',
-        (topic.title, topic.content, topic.best_reply, topic.locked, topic.categories_id
+        'INSERT INTO topics(users_id, title, content, best_reply, locked, categories_id) VALUES(?,?,?,?,?,?)',
+        (topic.id, topic.title, topic.content, topic.best_reply, topic.locked, topic.categories_id
         ))
 
     topic.id = generated_id
 
     return topic
 
-def exist(id: int):
+
+
+def exists(id: int):
     return any(
         read_query(
             'select id, title, content, best_reply, locked, categories_id, users_id from topics where id = ?',
             (id,)))
+
+
 
 def update(old: Topic, new: Topic):
     merged = Topic(

@@ -13,6 +13,8 @@ def all(search):
     
     return (Reply.from_query_result(*row) for row in data)
 
+
+
 def get_by_id(id: int):
     data = read_query(
         '''SELECT id, text, best_reply_text, topics_id, best_reply_id, author_id
@@ -22,6 +24,8 @@ def get_by_id(id: int):
 
     return next((Reply.from_query_result(*row) for row in data), None)
 
+
+
 def create(reply: Reply):
     generated_id = insert_query(
         'INSERT INTO replies(text, best_reply_text, topics_id, best_reply_id, author_id) VALUES(?,?,?,?,?)',
@@ -30,6 +34,8 @@ def create(reply: Reply):
     reply.id = generated_id
 
     return reply
+
+
 
 def get_by_topic(topics_id: int):
     data = read_query(

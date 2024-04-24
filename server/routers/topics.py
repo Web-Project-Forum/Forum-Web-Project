@@ -1,9 +1,9 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Header
 from pydantic import BaseModel
-from common.responses import BadRequest, NotFound
-from data.models import Reply, Topic
+from common.responses import BadRequest, NotFound, Unauthorized
+from data.models import Reply, Role, Topic
 from services import topic_service, category_service, reply_service
-
+from common.auth import get_user_or_raise_401
 
 
 topics_router = APIRouter(prefix='/topics')
@@ -14,11 +14,13 @@ class TopicResponseModel(BaseModel):
 
 @topics_router.get('/', response_model=list[Topic])
 def get_topics(
+    offset: int | None = None,
+    limit: int |None = None,
     sort: str | None = None,
     sort_by: str | None = None,
-    search: str | None = None
-):
-    result = topic_service.all(search)
+    search: str | None = None):
+
+    result = topic_service.all(search, offset, limit)
 
     if sort and (sort == 'asc' or sort == 'desc'):
         return topic_service.sort(result, reverse=sort == 'desc', attribute=sort_by)
@@ -31,7 +33,7 @@ def get_topic_by_id(id: int):
     topic = topic_service.get_by_id(id)
 
     if not topic:
-        raise HTTPException(status_code=404, detail="Topic not found!")
+        return NotFound('Topic with that id doesn\'t exist')
     
     return TopicResponseModel(
         topic= topic,
@@ -40,16 +42,21 @@ def get_topic_by_id(id: int):
 
 
 @topics_router.post('/', status_code=201)
-def create_topic(topic: Topic):
-    if not category_service.exist(topic.categories_id):
+def create_topic(topic: Topic, x_token: str | None = Header()):
+    user = get_user_or_raise_401(x_token)
+    if user.role == Role.USER:
+         return Unauthorized(content='You are not authoriszed to create category!')
+    
+    if not category_service.exists(topic.categories_id):
         return BadRequest(f'Category {topic.categories_id} does not exist')
 
     return topic_service.create(topic)
 
 
+
 @topics_router.put('/{id}')
 def update_topic(id: int, topic: Topic):
-    if not category_service.exist(topic.categories_id):
+    if not category_service.exists(topic.categories_id):
         return BadRequest(f'Category {topic.categories_id} does not exist')
 
     existing_topic = topic_service.get_by_id(id)
