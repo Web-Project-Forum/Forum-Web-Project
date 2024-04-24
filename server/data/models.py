@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import datetime
 from typing import Annotated
 from pydantic import BaseModel, constr, StringConstraints
 
@@ -89,6 +89,31 @@ class Reply(BaseModel):
 class Messages(BaseModel):
     id: int | None
     text: str
-    date: date
+    date: datetime
     sender_id: int
     receiver_id:int
+
+    @classmethod
+    def from_query_result(cls, id, text, date, sender_id, receiver_id):
+        return cls(
+            id=id,
+            text=text,
+            date = date,
+            sender_id = sender_id,
+            receiver_id = receiver_id)
+    
+class ConversationsReport(BaseModel):
+    id:int
+    username:str
+    role: str
+
+    @classmethod
+    def from_query_result(cls, id, username, role):
+        return cls(
+            id = id,
+            username=username,
+            role=role)
+    
+class MessageResponseModel(BaseModel):
+    user: User
+    messages: list[Messages]

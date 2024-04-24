@@ -57,6 +57,7 @@ def create_topic(topic: Topic, x_token: str | None = Header()):
 @topics_router.put('/{id}')
 def update_topic(id: int, topic: Topic):
     if not category_service.exists(topic.categories_id):
+    if not category_service.exists(topic.categories_id):
         return BadRequest(f'Category {topic.categories_id} does not exist')
 
     existing_topic = topic_service.get_by_id(id)
