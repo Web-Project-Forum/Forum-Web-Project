@@ -45,11 +45,11 @@ def get_by_id(id: int):
     return next((Category(id=id, name=name, is_private=is_private) for id, name, is_private in data), None)
 
 
-#def exists(id: int):
-#    return any(
-#        read_query(
-#            'select id, name, is_private from categories where id = ?',
-#            (id,)))
+def exist(id: int):
+    return any(
+        read_query(
+            'select id, name, is_private, is_locked from categories where id = ?',
+            (id,)))
 
 
 def create(category: Category):
@@ -61,11 +61,11 @@ def create(category: Category):
 
     return category
 
-def exist(category:Category):
-     return any(
-        read_query(
-            'select id, name, is_private from categories where name = ?',
-            (category.name,)))
+#def exist(category:Category):
+#     return any(
+#        read_query(
+#            'select id, name, is_private from categories where name = ?',
+#            (category.name,)))
 
 def delete(category_id):
     update_query('DELETE FROM topics WHERE categories_id = ?', (category_id,))
