@@ -25,15 +25,15 @@ def all_non_private(search):
     return (Category.from_query_result(*row) for row in data)
 
 def private(search: str, user_id: int):
-    categories_id = get_private_categories(user_id)
-    if not categories_id:   # if we pass empty tuple as parametar, occur mariadb.ProgrammingError
-        categories_id = (0,)
+    #categories_id = get_private_categories(user_id)
+    #if not categories_id:   # if we pass empty tuple as parametar, occur mariadb.ProgrammingError
+    #    categories_id = (0,)
 
     if search is None:
         data = read_query('''select id, name, is_private, is_locked
                           from categories 
                           where is_private = 0
-                          or id in (?) ''',tuple(categories_id))
+                          or id in (SELECT categories_id from permissions where users_id = ?) ''', (user_id,))
 
     
     else:
@@ -42,15 +42,15 @@ def private(search: str, user_id: int):
         #                  from categories 
         #                  where name like ? and(is_private = 0 or id in (?))''', ((f'%{search}%'), tuple(categories_id)))
         
-        without_search_data = read_query('''select id, name, is_private, is_locked  
+        data = read_query('''select id, name, is_private, is_locked  
                           from categories 
-                          where is_private = 0
-                          or id in (?) ''',tuple(categories_id))
-        data = []
-        for el in without_search_data:
-            if search in el[1]:
-                data.append(el)
-        
+                          where name like ? and (is_private = 0
+                          or id in (SELECT categories_id from permissions where users_id = ?))) ''', ((f'%{search}%'), user_id,))
+        #data = []
+        #for el in without_search_data:
+        #    if search in el[1]:
+        #        data.append(el)
+        #
     return (Category.from_query_result(*row) for row in data)
 
 def get_by_id(id: int):

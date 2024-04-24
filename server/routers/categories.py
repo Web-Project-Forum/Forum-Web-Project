@@ -56,23 +56,21 @@ def get_category_by_id(id: int, x_token: str | None = Header()):
     if category is None:
         return NotFound('Category with that id doesn\'t exist')
     
-    else:
-        if category.is_private and not x_token:
-            return Unauthorized(content='You are not authoriszed to view this category!')
-        
-        elif category.is_private and x_token:
-            user = get_user_or_raise_401(x_token)
-
-            if user.role == Role.USER:
-                if category_service.check_if_user_have_access_for_category(user.id, category.id):
-                    pass
-                else:
-                    return Unauthorized(content='You are not authoriszed to view this category!')
-
-        
-        return CategoryResponseModel(
-            category=category,
-            topics=topic_service.get_by_category(category.id))
+    
+    if category.is_private and not x_token:
+        return Unauthorized(content='You are not authoriszed to view this category!')
+    
+    elif category.is_private and x_token:
+        user = get_user_or_raise_401(x_token)
+        if user.role == Role.USER:
+            if category_service.check_if_user_have_access_for_category(user.id, category.id):
+                pass
+            else:
+                return Unauthorized(content='You are not authoriszed to view this category!')
+    
+    return CategoryResponseModel(
+        category=category,
+        topics=topic_service.get_by_category(category.id))
 
 
 @categories_router.post('/')
