@@ -63,8 +63,8 @@ def sort(topics: list[Topic], *, attribute='best_reply', reverse=False):
 
 def create(topic: Topic):
     generated_id = insert_query(
-        'INSERT INTO topics(title, content, best_reply, locked, categories_id) VALUES(?,?,?,?,?)',
-        (topic.title, topic.content, topic.best_reply, topic.locked, topic.categories_id
+        'INSERT INTO topics(title, content, best_reply, locked, categories_id, users_id) VALUES(?,?,?,?,?,?)',
+        (topic.title, topic.content, topic.best_reply, topic.locked, topic.categories_id, topic.users_id
         ))
 
     topic.id = generated_id

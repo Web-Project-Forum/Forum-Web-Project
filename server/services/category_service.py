@@ -68,8 +68,8 @@ def exists(id: int) -> bool:
 
 def create(category: Category):
     generated_id = insert_query(
-        'insert into categories(name, is_private) values(?,?)',
-        (category.name,category.is_private))
+        'insert into categories(name, is_private, is_locked) values(?,?,?)',
+        (category.name,category.is_private, category.is_locked))
 
     category.id = generated_id
 

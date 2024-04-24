@@ -34,7 +34,7 @@ def get_topic_by_id(id: int):
 
 @topics_router.post('/', status_code=201)
 def create_topic(topic: Topic):
-    if not category_service.exist(topic.categories_id):
+    if not category_service.exists(topic.categories_id):
         return BadRequest(f'Category {topic.categories_id} does not exist')
 
     return topic_service.create(topic)
@@ -42,7 +42,7 @@ def create_topic(topic: Topic):
 
 @topics_router.put('/{id}')
 def update_topic(id: int, topic: Topic):
-    if not category_service.exist(topic.categories_id):
+    if not category_service.exists(topic.categories_id):
         return BadRequest(f'Category {topic.categories_id} does not exist')
 
     existing_topic = topic_service.get_by_id(id)
