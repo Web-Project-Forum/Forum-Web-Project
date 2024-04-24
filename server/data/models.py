@@ -67,3 +67,11 @@ class User(BaseModel):
 class LoginData(BaseModel):
     username: TUsername
     password: str
+
+
+class Messages(BaseModel):
+    id: int | None
+    text: str
+    date: date
+    sender_id: int
+    receiver_id:int

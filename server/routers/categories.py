@@ -22,7 +22,7 @@ def get_catgories(
     search: str | None = None,
     x_token: str | None = Header()
 ):
-    if not x_token :
+    if not x_token:
         data = category_service.all_non_private(search)
 
     else:
