@@ -59,7 +59,7 @@ def get_by_id(id: int):
     return next((Category(id=id, name=name, is_private=is_private, is_locked = is_locked) for id, name, is_private, is_locked in data), None)
 
 
-def exists(id: int):
+def exists(id: int) -> bool:
     return any(
         read_query(
             'select id, name, is_private from categories where id = ?',

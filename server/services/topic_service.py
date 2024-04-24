@@ -74,7 +74,7 @@ def create(topic: Topic):
 def exist(id: int):
     return any(
         read_query(
-            'select id, title, content, best_reply, locked, categories_id, users_id where id = ?',
+            'select id, title, content, best_reply, locked, categories_id, users_id from topics where id = ?',
             (id,)))
 
 def update(old: Topic, new: Topic):

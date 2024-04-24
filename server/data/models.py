@@ -77,13 +77,13 @@ class Reply(BaseModel):
     author_id: int
 
     @classmethod
-    def from_query_result(cls, id, text, best_reply_text, topics_id, best_repy_id, author_id):
+    def from_query_result(cls, id, text, best_reply_text, topics_id, best_reply_id, author_id):
         return cls(
             id=id,
             text=text,
             best_reply_text=best_reply_text,
             topics_id=topics_id,
-            best_repy_id=best_repy_id,
+            best_reply_id=best_reply_id,
             author_id=author_id)
 
 class Messages(BaseModel):

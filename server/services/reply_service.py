@@ -20,7 +20,7 @@ def get_by_id(id: int):
 
             WHERE id = ?''', (id,))
 
-    return next[(Reply.from_query_result(*row) for row in data), None]
+    return next((Reply.from_query_result(*row) for row in data), None)
 
 def create(reply: Reply):
     generated_id = insert_query(
