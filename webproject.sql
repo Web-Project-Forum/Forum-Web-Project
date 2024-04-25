@@ -26,9 +26,9 @@ CREATE TABLE IF NOT EXISTS `webproject`.`categories` (
   `is_private` TINYINT(4) NOT NULL DEFAULT 0,
   `is_locked` TINYINT(4) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
-  UNIQUE INDEX `name_UNIQUE` (`name` ASC))
+  UNIQUE INDEX `name_UNIQUE` (`name` ASC) VISIBLE)
 ENGINE = InnoDB
-AUTO_INCREMENT = 7
+AUTO_INCREMENT = 9
 DEFAULT CHARACTER SET = latin1;
 
 
@@ -42,10 +42,10 @@ CREATE TABLE IF NOT EXISTS `webproject`.`users` (
   `role` VARCHAR(45) NOT NULL DEFAULT 'user',
   `email` VARCHAR(45) NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE INDEX `username_UNIQUE` (`username` ASC),
-  UNIQUE INDEX `email_UNIQUE` (`email` ASC))
+  UNIQUE INDEX `username_UNIQUE` (`username` ASC) VISIBLE,
+  UNIQUE INDEX `email_UNIQUE` (`email` ASC) VISIBLE)
 ENGINE = InnoDB
-AUTO_INCREMENT = 4
+AUTO_INCREMENT = 5
 DEFAULT CHARACTER SET = latin1;
 
 
@@ -57,21 +57,22 @@ CREATE TABLE IF NOT EXISTS `webproject`.`messages` (
   `text` TEXT NOT NULL,
   `date` DATETIME NOT NULL,
   `sender_id` INT(11) NOT NULL,
-  `recipient_id1` INT(11) NOT NULL,
+  `receiver_id` INT(11) NOT NULL,
   PRIMARY KEY (`id`),
-  INDEX `fk_messages_users3_idx` (`sender_id` ASC),
-  INDEX `fk_messages_users4_idx` (`recipient_id1` ASC),
+  INDEX `fk_messages_users3_idx` (`sender_id` ASC) VISIBLE,
+  INDEX `fk_messages_users4_idx` (`receiver_id` ASC) VISIBLE,
   CONSTRAINT `fk_messages_users3`
     FOREIGN KEY (`sender_id`)
     REFERENCES `webproject`.`users` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_messages_users4`
-    FOREIGN KEY (`recipient_id1`)
+    FOREIGN KEY (`receiver_id`)
     REFERENCES `webproject`.`users` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
+AUTO_INCREMENT = 10
 DEFAULT CHARACTER SET = latin1;
 
 
@@ -81,9 +82,11 @@ DEFAULT CHARACTER SET = latin1;
 CREATE TABLE IF NOT EXISTS `webproject`.`permissions` (
   `categories_id` INT(11) NOT NULL,
   `users_id` INT(11) NOT NULL,
+  `read_permission` TINYINT(4) NOT NULL DEFAULT 0,
+  `write_permission_copy1` TINYINT(4) NOT NULL DEFAULT 0,
   PRIMARY KEY (`categories_id`, `users_id`),
-  INDEX `fk_permissions_categories_idx` (`categories_id` ASC),
-  INDEX `fk_permissions_users_idx` (`users_id` ASC),
+  INDEX `fk_permissions_categories_idx` (`categories_id` ASC) VISIBLE,
+  INDEX `fk_permissions_users_idx` (`users_id` ASC) VISIBLE,
   CONSTRAINT `fk_permissions_categories`
     FOREIGN KEY (`categories_id`)
     REFERENCES `webproject`.`categories` (`id`)
@@ -105,21 +108,21 @@ CREATE TABLE IF NOT EXISTS `webproject`.`topics` (
   `id` INT(11) NOT NULL AUTO_INCREMENT,
   `title` VARCHAR(45) NOT NULL,
   `content` TEXT NOT NULL,
-  `best_reply` INT(11) NULL DEFAULT 0,
   `locked` TINYINT(4) NOT NULL DEFAULT 0,
+  `best_reply_id` INT(11) NULL DEFAULT NULL,
   `categories_id` INT(11) NOT NULL,
-  `users_id` INT(11) NOT NULL,
+  `author_id` INT(11) NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE INDEX `title_UNIQUE` (`title` ASC),
-  INDEX `fk_topics_categories1_idx` (`categories_id` ASC),
-  INDEX `fk_topics_users1_idx` (`users_id` ASC),
+  UNIQUE INDEX `title_UNIQUE` (`title` ASC) VISIBLE,
+  INDEX `fk_topics_categories1_idx` (`categories_id` ASC) VISIBLE,
+  INDEX `fk_topics_users1_idx` (`author_id` ASC) VISIBLE,
   CONSTRAINT `fk_topics_categories1`
     FOREIGN KEY (`categories_id`)
     REFERENCES `webproject`.`categories` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_topics_users1`
-    FOREIGN KEY (`users_id`)
+    FOREIGN KEY (`author_id`)
     REFERENCES `webproject`.`users` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
@@ -134,13 +137,11 @@ DEFAULT CHARACTER SET = latin1;
 CREATE TABLE IF NOT EXISTS `webproject`.`replies` (
   `id` INT(11) NOT NULL AUTO_INCREMENT,
   `text` TEXT NOT NULL,
-  `best_reply_text` VARCHAR(45) NOT NULL,
   `topics_id` INT(11) NOT NULL,
-  `best_reply_id` INT(11) NOT NULL,
   `author_id` INT(11) NOT NULL,
   PRIMARY KEY (`id`),
-  INDEX `fk_replies_topics_idx` (`topics_id` ASC),
-  INDEX `fk_replies_users_idx` (`author_id` ASC),
+  INDEX `fk_replies_topics_idx` (`topics_id` ASC) VISIBLE,
+  INDEX `fk_replies_users_idx` (`author_id` ASC) VISIBLE,
   CONSTRAINT `fk_replies_topics`
     FOREIGN KEY (`topics_id`)
     REFERENCES `webproject`.`topics` (`id`)
@@ -152,6 +153,7 @@ CREATE TABLE IF NOT EXISTS `webproject`.`replies` (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
+AUTO_INCREMENT = 4
 DEFAULT CHARACTER SET = latin1;
 
 
@@ -161,10 +163,10 @@ DEFAULT CHARACTER SET = latin1;
 CREATE TABLE IF NOT EXISTS `webproject`.`votes` (
   `replies_id` INT(11) NOT NULL,
   `users_id` INT(11) NOT NULL,
-  `type` VARCHAR(45) NOT NULL,
+  `vote` INT(11) NOT NULL,
   PRIMARY KEY (`replies_id`, `users_id`),
-  INDEX `fk_votes_replies_idx` (`replies_id` ASC),
-  INDEX `fk_votes_users_idx` (`users_id` ASC),
+  INDEX `fk_votes_replies_idx` (`replies_id` ASC) VISIBLE,
+  INDEX `fk_votes_users_idx` (`users_id` ASC) VISIBLE,
   CONSTRAINT `fk_votes_replies`
     FOREIGN KEY (`replies_id`)
     REFERENCES `webproject`.`replies` (`id`)
