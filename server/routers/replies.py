@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Header
 from common.responses import BadRequest, NotFound, Unauthorized
 from data.models import Reply, Role
-from server.common.auth import get_user_or_raise_401
+from common.auth import get_user_or_raise_401
 from services import topic_service
 from services import reply_service
 
