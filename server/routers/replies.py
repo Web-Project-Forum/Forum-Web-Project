@@ -8,10 +8,7 @@ from services import reply_service
 replies_router = APIRouter(prefix='/replies')
 
 @replies_router.get('/', response_model=list[Reply])
-def get_replies(
-    
-    search: str | None = None
-):
+def get_replies(search: str | None = None):
     result = reply_service.all(search)
 
     return result
@@ -32,8 +29,8 @@ def get_reply_by_id(id: int):
 @replies_router.post('/', status_code=201)
 def create_reply(reply: Reply, x_token: str | None = Header()):
     user = get_user_or_raise_401(x_token)
-    if user.role == Role.USER:
-         return Unauthorized(content='You are not authoriszed to create category!')
+    if not user.role == Role.USER:
+         return Unauthorized(content='You are not authoriszed to create reply!')
     
     if not topic_service.exists(reply.topics_id):
         return BadRequest(f'Topic {reply.topics_id} does not exist')

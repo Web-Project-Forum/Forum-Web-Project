@@ -16,14 +16,14 @@ class TopicResponseModel(BaseModel):
 def get_topics(
     offset: int | None = None,
     limit: int |None = None,
-    sort: str | None = None,
+    sorting: str | None = None,
     sort_by: str | None = None,
     search: str | None = None):
 
     result = topic_service.all(search, offset, limit)
 
-    if sort and (sort == 'asc' or sort == 'desc'):
-        return topic_service.sort(result, reverse=sort == 'desc', attribute=sort_by)
+    if sorting and (sorting == 'asc' or sorting == 'desc'):
+        return topic_service.sorting(result, reverse=sorting == 'desc', attribute=sort_by)
     else:
         return result
 
@@ -45,7 +45,7 @@ def get_topic_by_id(id: int):
 def create_topic(topic: Topic, x_token: str | None = Header()):
     user = get_user_or_raise_401(x_token)
     if user.role == Role.USER:
-         return Unauthorized(content='You are not authoriszed to create category!')
+         return Unauthorized(content='You are not authoriszed to create topic!')
     
     if not category_service.exists(topic.categories_id):
         return BadRequest(f'Category {topic.categories_id} does not exist')
@@ -55,9 +55,12 @@ def create_topic(topic: Topic, x_token: str | None = Header()):
 
 
 @topics_router.put('/{id}')
-def update_topic(id: int, topic: Topic):
-    if not category_service.exists(topic.categories_id):
-    if not category_service.exists(topic.categories_id):
+def update_topic(id: int, topic: Topic, x_token: str | None = Header()):
+    user = get_user_or_raise_401(x_token)
+    if user.role == Role.USER:
+         return Unauthorized(content='You are not authoriszed to update topic!')
+    
+    if category_service.exists(topic.categories_id):
         return BadRequest(f'Category {topic.categories_id} does not exist')
 
     existing_topic = topic_service.get_by_id(id)
