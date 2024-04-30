@@ -14,13 +14,13 @@ class TopicResponseModel(BaseModel):
 
 @topics_router.get('/', response_model=list[Topic])
 def get_topics(
-    offset: int | None = None,
-    limit: int |None = None,
+    skip: int | None = None,
+    take: int |None = None,
     sorting: str | None = None,
     sort_by: str | None = None,
     search: str | None = None):
 
-    result = topic_service.all(search, offset, limit)
+    result = topic_service.all(search, skip, take)
 
     if sorting and (sorting == 'asc' or sorting == 'desc'):
         return topic_service.sorting(result, reverse=sorting == 'desc', attribute=sort_by)

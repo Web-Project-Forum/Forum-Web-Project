@@ -6,9 +6,9 @@ def _get_connection() -> Connection:
     return connect(
         host='localhost',
         user='root',
-        password='1234',
+        password='root',
         port=3306,
-        database='webproject',
+        database='web_forum',
         autocommit = True
     )
 

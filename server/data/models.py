@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Annotated
+from typing import Annotated, Optional
 from pydantic import BaseModel, constr, StringConstraints
 
 class Category(BaseModel):
@@ -21,21 +21,21 @@ class Topic(BaseModel):
     id:int | None
     title:str
     content:str
-    best_reply:int
     locked:bool
     categories_id:int
-    users_id:int
+    author_id:int
+    best_reply_id:Optional[int]
 
     @classmethod
-    def from_query_result(cls, id, title, content, best_reply, locked, categories_id, users_id):
+    def from_query_result(cls, id, title, content, locked, categories_id, author_id, best_reply_id):
         return cls(
             id = id,
             title = title,
             content = content,
-            best_reply = best_reply,
             locked = locked,
             categories_id = categories_id,
-            users_id = users_id)
+            author_id = author_id,
+            best_reply_id = best_reply_id)
     
 
 class Role:
@@ -71,19 +71,15 @@ class LoginData(BaseModel):
 class Reply(BaseModel):
     id: int | None
     text: str
-    best_reply_text: str
     topics_id: int
-    best_reply_id: int
     author_id: int
 
     @classmethod
-    def from_query_result(cls, id, text, best_reply_text, topics_id, best_reply_id, author_id):
+    def from_query_result(cls, id, text, topics_id, author_id):
         return cls(
             id=id,
             text=text,
-            best_reply_text=best_reply_text,
             topics_id=topics_id,
-            best_reply_id=best_reply_id,
             author_id=author_id)
 
 class Messages(BaseModel):
