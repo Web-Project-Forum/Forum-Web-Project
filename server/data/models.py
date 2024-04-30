@@ -136,3 +136,7 @@ class Permission(BaseModel):
     user_id:int
     read_permission:bool
     write_permission:bool
+
+class PermissionModel(BaseModel):
+    read_permission:bool
+    write_permission:bool
