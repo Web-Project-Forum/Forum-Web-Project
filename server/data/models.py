@@ -129,3 +129,10 @@ class ConversationsReport(BaseModel):
 class MessageResponseModel(BaseModel):
     user: User
     messages: list[Messages]
+
+
+class Permission(BaseModel):
+    category_id:int
+    user_id:int
+    read_permission:bool
+    write_permission:bool

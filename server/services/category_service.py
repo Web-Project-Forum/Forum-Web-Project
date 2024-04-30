@@ -33,7 +33,7 @@ def private(search: str, user_id: int):
         data = read_query('''select id, name, is_private, is_locked
                           from categories 
                           where is_private = 0
-                          or id in (SELECT categories_id from permissions where users_id = ?) ''', (user_id,))
+                          or id in (SELECT category_id from permissions where user_id = ?) ''', (user_id,))
 
     
     else:
@@ -45,7 +45,7 @@ def private(search: str, user_id: int):
         data = read_query('''select id, name, is_private, is_locked  
                           from categories 
                           where name like ? and (is_private = 0
-                          or id in (SELECT categories_id from permissions where users_id = ?))) ''', ((f'%{search}%'), user_id,))
+                          or id in (SELECT category_id from permissions where user_id = ?))) ''', ((f'%{search}%'), user_id,))
         #data = []
         #for el in without_search_data:
         #    if search in el[1]:
