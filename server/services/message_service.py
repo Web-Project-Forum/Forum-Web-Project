@@ -38,6 +38,7 @@ def get_messages_with(user_id:int, contact_id:int):
                       UNION
                       select id, text, date, sender_id, receiver_id
                       from messages
-                      where sender_id = ? and receiver_id = ?''', (user_id, contact_id, contact_id, user_id))
+                      where sender_id = ? and receiver_id = ?
+                      order by date''', (user_id, contact_id, contact_id, user_id))
     
     return (Messages.from_query_result(*row) for row in data)

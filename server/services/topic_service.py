@@ -6,14 +6,15 @@ from data.database import insert_query, read_query, update_query
 def all(search: str = None, offset: int = 0, limit: int = 2):
     if search is None:
         data = read_query(
-            '''SELECT id, title, content, locked, categories_id, author_id, best_reply_id
-               FROM topics''')
-#               LIMIT ?, ?''', (offset, limit))
+            '''SELECT id, title, content, best_reply_id, locked, categories_id, author_id
+               FROM topics
+               LIMIT ?, ?''', (offset, limit))
     else:
         data = read_query(
-            '''SELECT id, title, content, locked, categories_id, author_id, best_reply_id
-               WHERE title LIKE ?''', (f'%{search}%'))
-#               LIMIT ?, ?''', (f'%{search}%', offset, limit))
+            '''SELECT id, title, content, best_reply_id, locked, categories_id, author_id
+               FROM topics
+               WHERE title LIKE ?
+               LIMIT ?, ?''', (f'%{search}%', offset, limit))
 
     return [Topic.from_query_result(*row) for row in data]
 
@@ -21,7 +22,7 @@ def all(search: str = None, offset: int = 0, limit: int = 2):
 
 def get_by_id(id: int):
     data = read_query(
-        '''SELECT id, title, content, locked, categories_id, author_id, best_reply_id
+        '''SELECT id, title, content, best_reply_id, locked, categories_id, author_id
             FROM topics
 
             WHERE id = ?''', (id,))
@@ -33,7 +34,7 @@ def get_by_id(id: int):
 def get_many(ids: list[int]):
     ids_joined = ','.join(str(id) for id in ids)
     data = read_query(f'''
-            SELECT id, title, content, locked, categories_id, author_id, best_reply_id
+            SELECT id, title, content, best_reply_id, locked, categories_id, author_id
             FROM topics
 
             WHERE id IN ({ids_joined})''')
@@ -44,7 +45,7 @@ def get_many(ids: list[int]):
 
 def get_by_category(category_id: int):
     data = read_query(
-        '''SELECT id, title, content, locked, categories_id, author_id, best_reply_id
+        '''SELECT id, title, content, best_reply_id, locked, categories_id, author_id
             FROM topics
             WHERE categories_id = ?''', (category_id,)
              )
@@ -53,8 +54,8 @@ def get_by_category(category_id: int):
 
 
 
-def sorting(topics: list[Topic], *, attribute='best_reply', reverse=False):
-    if attribute == 'best_reply':
+def sort(topics: list[Topic], *, attribute='best_reply_id', reverse=False):
+    if attribute == 'best_reply_id':
         def sort_fn(p: Topic): return p.best_reply
     elif attribute == 'title':
         def sort_fn(p: Topic): return p.title
@@ -76,15 +77,10 @@ def sorting(topics: list[Topic], *, attribute='best_reply', reverse=False):
 #
 #    return topic
 def create(topic: Topic):
-    # Check if best_reply_id is None and handle accordingly
-    if topic.best_reply_id is None:
-        query = 'INSERT INTO topics(title, content, locked, categories_id, author_id) VALUES(?,?,?,?,?)'
-        params = (topic.title, topic.content, topic.locked, topic.categories_id, topic.author_id)
-    else:
-        query = 'INSERT INTO topics(title, content, locked, categories_id, author_id, best_reply_id) VALUES(?,?,?,?,?,?)'
-        params = (topic.title, topic.content, topic.locked, topic.categories_id, topic.author_id, topic.best_reply_id)
-
-    generated_id = insert_query(query, params)
+    generated_id = insert_query(
+        'INSERT INTO topics(title, content, best_reply_id, locked, categories_id, author_id) VALUES(?,?,?,?,?,?)',
+        (topic.title, topic.content, topic.best_reply_id, topic.locked, topic.categories_id, topic.author_id
+        ))
 
     topic.id = generated_id
 
@@ -94,8 +90,7 @@ def create(topic: Topic):
 def exists(id: int):
     return any(
         read_query(
-            '''SELECT id, title, content, locked, categories_id, author_id, best_reply_id 
-            from topics where id = ?''',
+            'select id, title, content, best_reply, locked, categories_id, author_id from topics where id = ?',
             (id,)))
 
 

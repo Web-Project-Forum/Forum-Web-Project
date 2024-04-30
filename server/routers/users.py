@@ -36,6 +36,10 @@ def user_info(x_token: str | None = Header()):
 
 @users_router.post('/register')
 def register(data: User):
-    user = users_service.create(data.username, data.password, data.email)
 
+    if data.email:
+        user = users_service.create(data.username, data.password, data.email)
+    else:
+        return BadRequest(content= 'Email should contain symbol "@" and at least one full stop "."')
+    
     return user or BadRequest(f'Username {data.username} is taken.')

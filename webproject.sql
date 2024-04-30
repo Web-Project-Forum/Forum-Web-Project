@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS `webproject`.`users` (
   UNIQUE INDEX `username_UNIQUE` (`username` ASC) VISIBLE,
   UNIQUE INDEX `email_UNIQUE` (`email` ASC) VISIBLE)
 ENGINE = InnoDB
-AUTO_INCREMENT = 5
+AUTO_INCREMENT = 8
 DEFAULT CHARACTER SET = latin1;
 
 
@@ -72,7 +72,7 @@ CREATE TABLE IF NOT EXISTS `webproject`.`messages` (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
-AUTO_INCREMENT = 10
+AUTO_INCREMENT = 13
 DEFAULT CHARACTER SET = latin1;
 
 
@@ -80,20 +80,20 @@ DEFAULT CHARACTER SET = latin1;
 -- Table `webproject`.`permissions`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `webproject`.`permissions` (
-  `categories_id` INT(11) NOT NULL,
-  `users_id` INT(11) NOT NULL,
+  `category_id` INT(11) NOT NULL,
+  `user_id` INT(11) NOT NULL,
   `read_permission` TINYINT(4) NOT NULL DEFAULT 0,
-  `write_permission_copy1` TINYINT(4) NOT NULL DEFAULT 0,
-  PRIMARY KEY (`categories_id`, `users_id`),
-  INDEX `fk_permissions_categories_idx` (`categories_id` ASC) VISIBLE,
-  INDEX `fk_permissions_users_idx` (`users_id` ASC) VISIBLE,
+  `write_permission` TINYINT(4) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`category_id`, `user_id`),
+  INDEX `fk_permissions_categories_idx` (`category_id` ASC) VISIBLE,
+  INDEX `fk_permissions_users_idx` (`user_id` ASC) VISIBLE,
   CONSTRAINT `fk_permissions_categories`
-    FOREIGN KEY (`categories_id`)
+    FOREIGN KEY (`category_id`)
     REFERENCES `webproject`.`categories` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_permissions_users`
-    FOREIGN KEY (`users_id`)
+    FOREIGN KEY (`user_id`)
     REFERENCES `webproject`.`users` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
