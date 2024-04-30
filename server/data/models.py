@@ -80,19 +80,15 @@ class LoginData(BaseModel):
 class Reply(BaseModel):
     id: int | None
     text: str
-    best_reply_id_text: str
     topics_id: int
-    best_reply_id_id: int
     author_id: int
 
     @classmethod
-    def from_query_result(cls, id, text, best_reply_id_text, topics_id, best_reply_id_id, author_id):
+    def from_query_result(cls, id, text, topics_id, author_id):
         return cls(
             id=id,
             text=text,
-            best_reply_id_text=best_reply_id_text,
             topics_id=topics_id,
-            best_reply_id_id=best_reply_id_id,
             author_id=author_id)
 
 
