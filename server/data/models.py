@@ -78,6 +78,9 @@ class LoginData(BaseModel):
     username: TUsername
     password: str
 
+class Key:
+    KEY = 'notsecret'
+
 
 class Reply(BaseModel):
     id: int | None

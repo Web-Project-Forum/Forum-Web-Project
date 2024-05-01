@@ -1,6 +1,7 @@
 from data.database import insert_query, read_query
-from data.models import Role, User
+from data.models import Role, User, Key
 from mariadb import IntegrityError
+import jwt
 
 
 _SEPARATOR = ';'
@@ -42,22 +43,32 @@ def create(username: str, password: str, email) -> User | None:
 
 
 def create_token(user: User) -> str:
+
+    load = {"id":user.id,
+           "username":user.username,
+           "role":user.role
+            }
+    encoded = jwt.encode(payload = load, key = Key.KEY, algorithm="HS256")
+   
+    return encoded
     # note: this token is not particulary secure, use JWT for real-world uses
-    return f'{user.id}{_SEPARATOR}{user.username}'
+    #return f'{user.id}{_SEPARATOR}{user.username}'
 
 
 def is_authenticated(token: str) -> bool:
+    decoded = jwt.decode(token, Key.KEY, algorithms=["HS256"])
+
     return any(read_query(
         'SELECT 1 FROM users where id = ? and username = ?',
+        (decoded['id'], decoded['username'])))
         # note: this token is not particulary secure, use JWT for real-world user
-        token.split(_SEPARATOR)))
+        #token.split(_SEPARATOR)))
 
 
 def from_token(token: str) -> User | None:
-    _, username = token.split(_SEPARATOR)
+    decoded = jwt.decode(token, Key.KEY, algorithms=["HS256"])
+    
+    return find_by_username(decoded['username'])
+    #_, username = token.split(_SEPARATOR)
 
-    return find_by_username(username)
-
-
-#def owns_order(user: User, order: Order) -> bool:
-#    return order.user_id == user.id
+    #return find_by_username(username)
