@@ -30,6 +30,8 @@ def create(reply: Reply):
     generated_id = insert_query(
         'INSERT INTO replies(text, topics_id, author_id) VALUES(?,?,?)',
         (reply.text, reply.topics_id, reply.author_id))
+        'INSERT INTO replies(text, topics_id, author_id) VALUES(?,?,?)',
+        (reply.text, reply.topics_id, reply.author_id))
 
     reply.id = generated_id
 
@@ -39,6 +41,7 @@ def create(reply: Reply):
 
 def get_by_topic(topics_id: int):
     data = read_query(
+        '''SELECT id, text, topics_id, author_id
         '''SELECT id, text, topics_id, author_id
             FROM replies
             WHERE topics_id = ?''', (topics_id,)

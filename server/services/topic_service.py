@@ -3,7 +3,7 @@ from data.database import insert_query, read_query, update_query
 
 
 
-def all(search: str = None, offset: int = 0, limit: int = 2):
+def all(offset: int, limit: int, search: str = None):
     if search is None:
         data = read_query(
             '''SELECT id, title, content, best_reply_id, locked, categories_id, author_id
