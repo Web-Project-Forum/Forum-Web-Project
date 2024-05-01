@@ -3,18 +3,18 @@ from data.database import insert_query, read_query, update_query
 
 
 
-def all(offset: int, limit: int, search: str = None):
+def all(search: str = None, skip: int = None, take: int = None):
     if search is None:
         data = read_query(
-            '''SELECT id, title, content, best_reply_id, locked, categories_id, author_id
+            '''SELECT id, title, content, locked, best_reply_id, categories_id, author_id
                FROM topics
-               LIMIT ?, ?''', (offset, limit))
+               LIMIT ?, ?''', (skip, take))
     else:
         data = read_query(
-            '''SELECT id, title, content, best_reply_id, locked, categories_id, author_id
+            '''SELECT id, title, content, locked, best_reply_id, categories_id, author_id
                FROM topics
                WHERE title LIKE ?
-               LIMIT ?, ?''', (f'%{search}%', offset, limit))
+               LIMIT ?, ?''', (f'%{search}%', skip, take))
 
     return [Topic.from_query_result(*row) for row in data]
 
@@ -22,7 +22,7 @@ def all(offset: int, limit: int, search: str = None):
 
 def get_by_id(id: int):
     data = read_query(
-        '''SELECT id, title, content, best_reply_id, locked, categories_id, author_id
+        '''SELECT id, title, content, locked, best_reply_id, categories_id, author_id
             FROM topics
 
             WHERE id = ?''', (id,))
@@ -34,7 +34,7 @@ def get_by_id(id: int):
 def get_many(ids: list[int]):
     ids_joined = ','.join(str(id) for id in ids)
     data = read_query(f'''
-            SELECT id, title, content, best_reply_id, locked, categories_id, author_id
+            SELECT id, title, content, locked, best_reply_id, categories_id, author_id
             FROM topics
 
             WHERE id IN ({ids_joined})''')
@@ -45,7 +45,7 @@ def get_many(ids: list[int]):
 
 def get_by_category(category_id: int):
     data = read_query(
-        '''SELECT id, title, content, best_reply_id, locked, categories_id, author_id
+        '''SELECT id, title, content, locked, best_reply_id, categories_id, author_id
             FROM topics
             WHERE categories_id = ?''', (category_id,)
              )
@@ -67,15 +67,6 @@ def sort(topics: list[Topic], *, attribute='best_reply_id', reverse=False):
 
 
 
-
-#def create(topic: Topic):
-#    generated_id = insert_query(
-#        'INSERT INTO topics(title, content, locked, categories_id, author_id, best_reply_id) VALUES(?,?,?,?,?,?)',
-#        (topic.title, topic.content, topic.locked, topic.categories_id, topic.author_id, topic.best_reply_id))
-#
-#    topic.id = generated_id
-#
-#    return topic
 def create(topic: Topic):
     generated_id = insert_query(
         'INSERT INTO topics(title, content, best_reply_id, locked, categories_id, author_id) VALUES(?,?,?,?,?,?)',
@@ -90,8 +81,9 @@ def create(topic: Topic):
 def exists(id: int):
     return any(
         read_query(
-            'select id, title, content, best_reply, locked, categories_id, author_id from topics where id = ?',
-            (id,)))
+            '''SELECT id, title, content, locked, best_reply_id, categories_id, author_id
+                FROM topics 
+                WHERE id = ?''', (id,)))
 
 
 

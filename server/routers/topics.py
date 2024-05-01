@@ -44,15 +44,14 @@ def get_topic_by_id(id: int):
 @topics_router.post('/', status_code=201)
 def create_topic(topic: Topic, x_token: str | None = Header()):
     user = get_user_or_raise_401(x_token)
-    if user.role == Role.USER:
-         return Unauthorized(content='You are not authoriszed to create topic!')
+    if user.role == Role.USER or user.role == Role.ADMIN:
+        
+        if not category_service.exists(topic.categories_id):
+            return BadRequest(f'Category {topic.categories_id} does not exist')
+
+        return topic_service.create(topic)
     
-    if not category_service.exists(topic.categories_id):
-        return BadRequest(f'Category {topic.categories_id} does not exist')
-
-    return topic_service.create(topic)
-
-
+    return Unauthorized(content='You are not authoriszed to create topic!')
 
 @topics_router.put('/{id}')
 def update_topic(id: int, topic: Topic):

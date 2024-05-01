@@ -26,10 +26,10 @@ class Topic(BaseModel):
     locked:bool
     categories_id:int
     author_id:int
-    best_reply_id:Optional[int]
+    
 
     @classmethod
-    def from_query_result(cls, id, title, content, best_reply_id, locked, categories_id, users_id):
+    def from_query_result(cls, id, title, content, best_reply_id, locked, categories_id, author_id):
         return cls(
             id = id,
             title = title,
@@ -37,8 +37,7 @@ class Topic(BaseModel):
             best_reply_id = best_reply_id,
             locked = locked,
             categories_id = categories_id,
-            author_id = author_id,
-            best_reply_id = best_reply_id)
+            author_id = author_id)
     
 
 class Role:
@@ -78,6 +77,7 @@ class User(BaseModel):
 class LoginData(BaseModel):
     username: TUsername
     password: str
+
 
 class Reply(BaseModel):
     id: int | None
