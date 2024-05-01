@@ -1,6 +1,7 @@
 from data.database import insert_query, read_query
 from data.models import Role, User, Key
 from mariadb import IntegrityError
+from datetime import datetime, timezone, timedelta
 import jwt
 
 
@@ -46,7 +47,9 @@ def create_token(user: User) -> str:
 
     load = {"id":user.id,
            "username":user.username,
-           "role":user.role
+           "role":user.role,
+           "iat": datetime.now(tz=timezone.utc),
+           "exp":(datetime.now(tz=timezone.utc) + timedelta(hours=2))
             }
     encoded = jwt.encode(payload = load, key = Key.KEY, algorithm="HS256")
    
@@ -56,7 +59,11 @@ def create_token(user: User) -> str:
 
 
 def is_authenticated(token: str) -> bool:
-    decoded = jwt.decode(token, Key.KEY, algorithms=["HS256"])
+    try:
+        decoded = jwt.decode(token, Key.KEY, algorithms=["HS256"])
+    
+    except jwt.ExpiredSignatureError:
+        return False
 
     return any(read_query(
         'SELECT 1 FROM users where id = ? and username = ?',
@@ -66,7 +73,10 @@ def is_authenticated(token: str) -> bool:
 
 
 def from_token(token: str) -> User | None:
-    decoded = jwt.decode(token, Key.KEY, algorithms=["HS256"])
+    try:
+        decoded = jwt.decode(token, Key.KEY, algorithms=["HS256"])
+    except jwt.ExpiredSignatureError:
+        return False
     
     return find_by_username(decoded['username'])
     #_, username = token.split(_SEPARATOR)
