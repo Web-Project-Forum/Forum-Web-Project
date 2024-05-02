@@ -82,7 +82,7 @@ def exist_by_name(category:Category):
             (category.name,)))
 
 def delete(category_id):
-    update_query('DELETE FROM Categorys WHERE categories_id = ?', (category_id,))
+    update_query('DELETE FROM categories WHERE categories_id = ?', (category_id,))
     update_query('DELETE FROM categories WHERE id = ?', (category_id,))
 
 def sort(Categorys: list[Category], *, attribute='', reverse=False):
@@ -97,14 +97,14 @@ def sort(Categorys: list[Category], *, attribute='', reverse=False):
 
 def get_private_categories(user_id:int) -> set: 
     data = read_query(
-        'SELECT categories_id from permissions where users_id = ?', (user_id,))
+        'SELECT category_id from permissions where user_id = ?', (user_id,))
     
     return set(i[0] for i in data)
 
 def check_if_user_have_access_for_category(user_id:int, category_id:int) -> list: 
     data = read_query(
-        '''SELECT categories_id from permissions 
-        where users_id = ? and categories_id = ?''', (user_id, category_id))
+        '''SELECT category_id from permissions 
+        where user_id = ? and category_id = ?''', (user_id, category_id))
     
     return data
 

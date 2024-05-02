@@ -73,10 +73,12 @@ class User(BaseModel):
         return email if match(pattern, email) is not None else False
 
 
-
 class LoginData(BaseModel):
     username: TUsername
     password: str
+
+class Key:
+    KEY = 'notsecret'
 
 
 class Reply(BaseModel):

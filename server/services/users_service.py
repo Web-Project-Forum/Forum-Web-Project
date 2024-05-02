@@ -5,7 +5,8 @@ from datetime import datetime, timezone, timedelta
 import jwt
 
 
-_SEPARATOR = ';'
+_EXP_TIME_TOKEN = 2
+#_SEPARATOR = ';'
 
 # passwords should be secured as hashstrings in DB
 # def _hash_password(password: str):
@@ -49,7 +50,7 @@ def create_token(user: User) -> str:
            "username":user.username,
            "role":user.role,
            "iat": datetime.now(tz=timezone.utc),
-           "exp":(datetime.now(tz=timezone.utc) + timedelta(hours=2))
+           "exp":(datetime.now(tz=timezone.utc) + timedelta(hours=_EXP_TIME_TOKEN))
             }
     encoded = jwt.encode(payload = load, key = Key.KEY, algorithm="HS256")
    
