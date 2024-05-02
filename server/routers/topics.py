@@ -53,14 +53,21 @@ def create_topic(topic: Topic, x_token: str | None = Header()):
     
     return Unauthorized(content='You are not authoriszed to create topic!')
 
-@topics_router.put('/{id}')
-def update_topic(id: int, topic: Topic):
-    
-    if not category_service.exists(topic.categories_id):
-        return BadRequest(f'Category {topic.categories_id} does not exist')
 
-    existing_topic = topic_service.get_by_id(id)
-    if existing_topic is None:
-        return NotFound()
-    else:
-        return topic_service.update(existing_topic, topic)
+
+@topics_router.put('/{id}/{user_id}')
+def update_best_reply(id: int, user_id: int, topic: Topic,  x_token: str | None = Header()):
+    user = get_user_or_raise_401(x_token)
+    if user.role == Role.USER or user.role == Role.ADMIN:
+
+        existing_topic = topic_service.get_by_id(id)
+
+        if user_id == topic.author_id:
+            if existing_topic is None:
+                return NotFound()
+            
+            return topic_service.update_best_reply_id(existing_topic, topic)
+
+        return Unauthorized(content='You are not authoriszed to change the topic!')
+    
+    return Unauthorized(content='You are not authoriszed to change the topic!')

@@ -69,8 +69,8 @@ def sort(topics: list[Topic], *, attribute='best_reply_id', reverse=False):
 
 def create(topic: Topic):
     generated_id = insert_query(
-        'INSERT INTO topics(title, content, best_reply_id, locked, categories_id, author_id) VALUES(?,?,?,?,?,?)',
-        (topic.title, topic.content, topic.best_reply_id, topic.locked, topic.categories_id, topic.author_id
+        'INSERT INTO topics(title, content, locked, best_reply_id, categories_id, author_id) VALUES(?,?,?,?,?,?)',
+        (topic.title, topic.content, topic.locked, topic.best_reply_id, topic.categories_id, topic.author_id
         ))
 
     topic.id = generated_id
@@ -87,23 +87,25 @@ def exists(id: int):
 
 
 
-def update(old: Topic, new: Topic):
+def update_best_reply_id(old: Topic, new: Topic):
     merged = Topic(
         id = old.id,
-        title = new.title or old.title,
-        content = new.content or old.content,
-        locked = new.locked or old.locked,
-        categories_id = new.categories_id or old.categories_id,
-        author_id = new.author_id or old.author_id,
-        best_reply_id = new.best_reply or old.best_reply
+        title = old.title,
+        content = old.content,
+        locked = old.locked,
+        best_reply_id = new.best_reply_id or old.best_reply_id,
+        categories_id = old.categories_id,
+        author_id =  old.author_id,
         )
 
     update_query(
         '''UPDATE topics
          SET
-           title = ?, content = ?, locked = ?, categories_id = ?, author_id = ?, best_reply_id = ? 
+           best_reply_id = ? 
            WHERE id = ? 
         ''',
-        (merged.title, merged.content, merged.locked, merged.categories_id, merged.author_id, merged.best_reply_id, merged.id))
+        (merged.best_reply_id, merged.id))
 
     return merged
+
+

@@ -22,20 +22,20 @@ class Topic(BaseModel):
     id:int | None
     title:str
     content:str
-    best_reply_id:int | None
     locked:bool
+    best_reply_id:int | None
     categories_id:int
     author_id:int
     
 
     @classmethod
-    def from_query_result(cls, id, title, content, best_reply_id, locked, categories_id, author_id):
+    def from_query_result(cls, id, title, content, locked, best_reply_id, categories_id, author_id):
         return cls(
             id = id,
             title = title,
             content = content,
-            best_reply_id = best_reply_id,
             locked = locked,
+            best_reply_id = best_reply_id,
             categories_id = categories_id,
             author_id = author_id)
     
