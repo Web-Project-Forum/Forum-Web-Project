@@ -2,29 +2,35 @@ from data.database import insert_query, read_query, update_query
 from data.models import Category
 
 
-def all(search):
+def all(search:str, skip:int, take:int):
     if search is None:
-        data = read_query('select id, name, is_private, is_locked from categories')
+        data = read_query('''select id, name, is_private, is_locked from categories
+                          LIMIT ?, ?''', (skip, take))
     
     else:
         data = read_query('''select id, name, is_private, is_locked 
                           from categories 
-                          where name like ?''',(f'%{search}%',))
+                          where name like ?
+                          LIMIT ?, ?''',(f'%{search}%', skip, take))
     
     return (Category.from_query_result(*row) for row in data)
 
-def all_non_private(search):
+def all_non_private(search:str, skip:int, take:int):
     if search is None:
-        data = read_query('select id, name, is_private, is_locked from categories where is_private=0')
+        data = read_query('''select id, name, is_private, is_locked 
+                          from categories 
+                          where is_private=0
+                          LIMIT ?, ?''', (skip, take))
     
     else:
         data = read_query('''select id, name, is_private , is_locked 
                           from categories 
-                          where is_private=0 and name like ?''',(f'%{search}%',))
+                          where is_private=0 and name like ?
+                          LIMIT ? ?''',(f'%{search}%', skip, take))
     
     return (Category.from_query_result(*row) for row in data)
 
-def private(search: str, user_id: int):
+def private(search: str, user_id: int, skip:int, take:int):
     #categories_id = get_private_categories(user_id)
     #if not categories_id:   # if we pass empty tuple as parametar, occur mariadb.ProgrammingError
     #    categories_id = (0,)
@@ -33,7 +39,8 @@ def private(search: str, user_id: int):
         data = read_query('''select id, name, is_private, is_locked
                           from categories 
                           where is_private = 0
-                          or id in (SELECT category_id from permissions where user_id = ?) ''', (user_id,))
+                          or id in (SELECT category_id from permissions where user_id = ?) 
+                          LIMIT ?, ?''', (user_id, skip, take))
 
     
     else:
@@ -85,15 +92,15 @@ def delete(category_id):
     update_query('DELETE FROM categories WHERE categories_id = ?', (category_id,))
     update_query('DELETE FROM categories WHERE id = ?', (category_id,))
 
-def sort(Categorys: list[Category], *, attribute='', reverse=False):
+def sorting(Categorys: list[Category], *, attribute='', reverse=False):
     if attribute == 'is_private':
-        def sort_fn(p: Category): return p.price
+        def sorting_fn(p: Category): return p.price
     elif attribute == 'name':
-        def sort_fn(p: Category): return p.name
+        def sorting_fn(p: Category): return p.name
     else:
-        def sort_fn(p: Category): return p.id
+        def sorting_fn(p: Category): return p.id
 
-    return sorted(Categorys, key=sort_fn, reverse=reverse)
+    return sorted(Categorys, key=sorting_fn, reverse=reverse)
 
 def get_private_categories(user_id:int) -> set: 
     data = read_query(

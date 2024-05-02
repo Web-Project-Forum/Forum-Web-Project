@@ -17,25 +17,27 @@ categories_router = APIRouter(prefix='/categories')
 
 @categories_router.get('/')
 def get_catgories(
-    sort: str | None = None,
+    skip: int = 0,
+    take: int = 5,
+    sorting: str | None = None,
     sort_by: str | None = None,
     search: str | None = None,
     x_token: str | None = Header()
 ):
     if not x_token:
-        data = category_service.all_non_private(search)
+        data = category_service.all_non_private(search, skip, take)
 
     else:
         user = get_user_or_raise_401(x_token)
 
         if user.role == Role.ADMIN:
-            data = category_service.all(search)
+            data = category_service.all(search, skip, take)
         else:
-            data = category_service.private(search, user.id)
+            data = category_service.private(search, user.id, skip, take)
 
 
-    if sort and (sort == 'asc' or sort == 'desc'):
-        return category_service.sort(data, reverse=sort == 'desc', attribute=sort_by)
+    if sorting and (sorting == 'asc' or sorting == 'desc'):
+        return category_service.sorting(data, reverse=sorting == 'desc', attribute=sort_by)
     
     return data
 
@@ -108,6 +110,7 @@ def delete_category(id:int, x_token: str | None = Header()):
          return Unauthorized(content='You are not authoriszed to delete category!')
     
     category = category_service.get_by_id(id)
+
     if not category:
         return NotFound('Category with that id doesn\'t exist')
     

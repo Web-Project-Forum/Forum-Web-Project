@@ -108,8 +108,8 @@ class Messages(BaseModel):
     @classmethod
     def from_query_result(cls, id, text, date, sender_id, receiver_id):
         return cls(
-            id=id,
-            text=text,
+            id = id,
+            text = text,
             date = date,
             sender_id = sender_id,
             receiver_id = receiver_id)
@@ -123,8 +123,8 @@ class ConversationsReport(BaseModel):
     def from_query_result(cls, id, username, role):
         return cls(
             id = id,
-            username=username,
-            role=role)
+            username = username,
+            role = role)
     
 class MessageResponseModel(BaseModel):
     user: User
@@ -134,9 +134,11 @@ class MessageResponseModel(BaseModel):
 class Permission(BaseModel):
     category_id:int
     user_id:int
-    read_permission:bool
     write_permission:bool
 
-class PermissionModel(BaseModel):
-    read_permission:bool
-    write_permission:bool
+    @classmethod
+    def from_query_result(cls, category_id, user_id, write_permission):
+        return cls(
+            category_id = category_id,
+            user_id = user_id,
+            write_permission = write_permission)
