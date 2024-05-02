@@ -73,3 +73,21 @@ def update_permissions(permissions:Permission, x_token : str | None = Header()):
     permission_service.update_permission(permissions, permissions.category_id, permissions.user_id)
 
     return Ok(content= 'Permission updated!')
+
+
+@permissions_router.delete('/')
+def delete_permissions(permissions:Permission, x_token : str | None = Header()):
+    if not x_token:
+        return Unauthorized(content='You are not authorized!')
+    
+    if not category_service.exists(permissions.category_id):
+        return BadRequest(f'Category {permissions.category_id} does not exist')
+
+    user = get_user_or_raise_401(x_token)
+
+    if user.role == Role.USER:
+        return Forbidden(content='Only admins can update permissions!')
+    
+    permission_service.delete(permissions.category_id, permissions.user_id)
+    
+    return Ok(content= f'Permissions for user {permissions.user_id} are removed!')

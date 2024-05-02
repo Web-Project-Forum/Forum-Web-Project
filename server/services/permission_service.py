@@ -24,3 +24,7 @@ def update_permission(permissions:Permission, category_id:int, user_id:int):
             WHERE category_id = ? and user_id = ?
         ''',
         (permissions.write_permission, category_id, user_id))
+    
+def delete(category_id:int, user_id:int):
+    
+    update_query('DELETE FROM permissions WHERE category_id = ? and user_id = ?', (category_id, user_id))
