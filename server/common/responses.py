@@ -15,6 +15,10 @@ class Unauthorized(Response):
     def __init__(self, content=''):
         super().__init__(status_code=401, content=content)
 
+class Forbidden(Response):
+    def __init__(self, content=''):
+        super().__init__(status_code=403, content=content)
+
 
 class NoContent(Response):
     def __init__(self):

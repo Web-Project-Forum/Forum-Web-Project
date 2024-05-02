@@ -134,9 +134,9 @@ class MessageResponseModel(BaseModel):
 class Permission(BaseModel):
     category_id:int
     user_id:int
-    read_permission:bool
     write_permission:bool
 
 class PermissionModel(BaseModel):
-    read_permission:bool
+    category_id:int
+    user_id:int
     write_permission:bool
