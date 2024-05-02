@@ -1,6 +1,6 @@
-from fastapi import APIRouter, HTTPException, Header
+from fastapi import APIRouter, Header
 from pydantic import BaseModel
-from common.responses import BadRequest, NotFound, Unauthorized
+from common.responses import BadRequest, InternalServerError, NotFound, Unauthorized
 from data.models import Reply, Role, Topic
 from services import topic_service, category_service, reply_service
 from common.auth import get_user_or_raise_401
@@ -33,7 +33,7 @@ def get_topic_by_id(id: int):
     topic = topic_service.get_by_id(id)
 
     if not topic:
-        return NotFound('Topic with that id doesn\'t exist')
+        return NotFound(f'Topic with the id {id} doesn\'t exist!')
     
     return TopicResponseModel(
         topic= topic,
@@ -43,31 +43,35 @@ def get_topic_by_id(id: int):
 
 @topics_router.post('/', status_code=201)
 def create_topic(topic: Topic, x_token: str | None = Header()):
+
     user = get_user_or_raise_401(x_token)
-    if user.role == Role.USER or user.role == Role.ADMIN:
-        
-        if not category_service.exists(topic.categories_id):
-            return BadRequest(f'Category {topic.categories_id} does not exist')
-
-        return topic_service.create(topic)
+    if user.role != Role.USER:
+        return Unauthorized('You are not authoriszed to create topic!')
     
-    return Unauthorized(content='You are not authoriszed to create topic!')
+    if user.id != topic.author_id:
+        return BadRequest(f"Author id {topic.author_id} in the topic does not match the id {user.id} of the user!")
 
+    if not category_service.exists(topic.categories_id):
+        return BadRequest(f'Category {topic.categories_id} does not exist')
 
+    return topic_service.create(topic)
+    
 
-@topics_router.put('/{id}/{user_id}')
-def update_best_reply(id: int, user_id: int, topic: Topic,  x_token: str | None = Header()):
+@topics_router.put('/{id}')
+def update_best_reply(id: int, topic: Topic,  x_token: str | None = Header()):
+
+    existing_topic = topic_service.get_by_id(id)
+    if existing_topic is None:
+        return NotFound('Topic with that id doesn\'t exist')
+    
     user = get_user_or_raise_401(x_token)
-    if user.role == Role.USER or user.role == Role.ADMIN:
-
-        existing_topic = topic_service.get_by_id(id)
-
-        if user_id == topic.author_id:
-            if existing_topic is None:
-                return NotFound()
-            
-            return topic_service.update_best_reply_id(existing_topic, topic)
-
-        return Unauthorized(content='You are not authoriszed to change the topic!')
+    if user.id != topic.author_id:
+        return Unauthorized('You are not authoriszed to change this topic!')
     
-    return Unauthorized(content='You are not authoriszed to change the topic!')
+    reply = reply_service.get_by_id(topic.best_reply_id)
+    if reply.topics_id != topic.id:
+        return InternalServerError("Inconsistent data: Topic's best reply does not belong to the topic!")
+
+    return topic_service.update_best_reply_id(existing_topic, topic)
+    
+

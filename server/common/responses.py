@@ -25,5 +25,5 @@ class Ok(Response):
         super().__init__(status_code=200, content=content)
 
 class InternalServerError(Response):
-    def __init__(self):
-        super().__init__(status_code=500)
+    def __init__(self, content=''):
+        super().__init__(status_code=500, content=content)
