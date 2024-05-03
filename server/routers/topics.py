@@ -1,3 +1,4 @@
+from typing import Optional
 from fastapi import APIRouter, Header
 from pydantic import BaseModel
 from common.responses import BadRequest, InternalServerError, NotFound, Unauthorized
@@ -12,20 +13,49 @@ class TopicResponseModel(BaseModel):
     topic: Topic
     replies: list[Reply]
 
-@topics_router.get('/', response_model=list[Topic])
+@topics_router.get('/', response_model=list[Topic], )
 def get_topics(
     skip: int | None = None,
     take: int |None = None,
     sorting: str | None = None,
     sort_by: str | None = None,
-    search: str | None = None):
+    search: str | None = None,
+    x_token: Optional[str] = Header(None)):
 
-    result = topic_service.all(search, skip, take)
+    if x_token:
+        user = get_user_or_raise_401(x_token)
+    
+        if user.role == Role.ADMIN:
+            result = topic_service.all(search, skip, take)
 
-    if sorting and (sorting == 'asc' or sorting == 'desc'):
-        return topic_service.sorting(result, reverse=sorting == 'desc', attribute=sort_by)
-    else:
-        return result
+            if sorting and (sorting == 'asc' or sorting == 'desc'):
+                return topic_service.sorting(result, reverse=sorting == 'desc', attribute=sort_by)
+            else:
+                return result
+
+        elif user.role == Role.USER:
+            all_topics = topic_service.all(search, skip, take)
+            private_topics = []
+            for topic in all_topics:
+                data = category_service.check_if_user_have_access_for_category(user.id, topic.categories_id)
+                if data is not None:
+                    private_topics.append(topic)
+            if sorting and (sorting == 'asc' or sorting == 'desc'):
+                return topic_service.sorting(private_topics, reverse=sorting == 'desc', attribute=sort_by)
+            else:
+                return private_topics
+            
+    else: 
+        all_topics = topic_service.all(search, skip, take)
+        not_locked_topics = []
+        for topic in all_topics:
+            if not topic.locked:
+                not_locked_topics.append(topic)
+
+        if sorting and (sorting == 'asc' or sorting == 'desc'):
+            return topic_service.sorting(not_locked_topics, reverse=sorting == 'desc', attribute=sort_by)
+        else:
+            return not_locked_topics
 
 
 @topics_router.get('/{id}')
