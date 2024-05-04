@@ -142,3 +142,25 @@ class Permission(BaseModel):
             category_id = category_id,
             user_id = user_id,
             write_permission = write_permission)
+
+class VoteUpDownMaps:
+    INT_TO_STR = {1: 'up', -1: 'down'}
+    STR_TO_INT = {'up': 1, 'down': -1,}
+
+class Vote(BaseModel):
+    replies_id:int
+    users_id:int
+    vote:int
+    is_changed:bool
+
+    @classmethod
+    def from_query_result(cls, replies_id, users_id, vote, is_changed):
+        return cls(
+            replies_id = replies_id,
+            users_id = users_id,
+            vote = vote,
+            is_changed = is_changed)
+
+class VoteModel(BaseModel):
+    vote:Annotated[str, StringConstraints(pattern = '^up|down$')]
+   
