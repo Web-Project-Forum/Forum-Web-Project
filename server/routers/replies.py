@@ -1,3 +1,4 @@
+from typing import Optional
 from fastapi import APIRouter, Header
 from common.responses import BadRequest, NotFound, Unauthorized
 from data.models import Reply, Role
@@ -27,14 +28,15 @@ def get_reply_by_id(id: int):
 
 
 @replies_router.post('/', status_code=201)
-def create_reply(reply: Reply, x_token: str | None = Header()):
+def create_reply(reply: Reply, x_token: Optional[str] = Header(None)):
+    if not x_token:
+        return Unauthorized('You should have registration!')
+    
     user = get_user_or_raise_401(x_token)
-    if user.role == Role.USER or user.role == Role.ADMIN:
     
-        if not topic_service.exists(reply.topics_id):
-            return BadRequest(f'Topic {reply.topics_id} does not exist')
-
+    if not topic_service.exists(reply.topics_id):
+            return BadRequest(f'Topic {reply.topics_id} doesn\'t exist')
+    else:
+        reply.author_id = user.id
         return reply_service.create(reply)
-    
-    return Unauthorized(content='You are not authoriszed to create reply!')
     

@@ -59,21 +59,42 @@ def get_topics(
 
 
 @topics_router.get('/{id}')
-def get_topic_by_id(id: int):
+def get_topic_by_id(id: int, x_token: Optional[str] = Header(None)):
     topic = topic_service.get_by_id(id)
-
     if not topic:
-        return NotFound(f'Topic with the id {id} doesn\'t exist!')
+        return NotFound(f'Topic with id {id} doesn\'t exist!')
+    else:
+        if x_token:
+            user = get_user_or_raise_401(x_token)
     
-    return TopicResponseModel(
-        topic= topic,
-        replies= reply_service.get_by_topic(topic.id))
+            if user.role == Role.ADMIN:
+                return TopicResponseModel(
+                    topic= topic,
+                    replies= reply_service.get_by_topic(topic.id))
+    
+            elif user.role == Role.USER:
+                data = category_service.check_if_user_have_access_for_category(user.id, topic.categories_id)
+                if data is not None:
+                    return TopicResponseModel(
+                    topic= topic,
+                    replies= reply_service.get_by_topic(topic.id))
+                else:
+                    return BadRequest('You don\'t have permisions to view this topic!')
+        else:
+            if not topic.locked:
+                return TopicResponseModel(
+                    topic= topic,
+                    replies= reply_service.get_by_topic(topic.id))
+            else:
+                return BadRequest(f'Topic with id {id} is locked!')
 
-
+            
 
 @topics_router.post('/', status_code=201)
-def create_topic(topic: Topic, x_token: str | None = Header()):
-
+def create_topic(topic: Topic, x_token: Optional[str] = Header(None)):
+    if not x_token:
+        return Unauthorized('You should have registration!')
+    
     user = get_user_or_raise_401(x_token)
     if user.role != Role.USER:
         return Unauthorized('You are not authoriszed to create topic!')
@@ -88,8 +109,10 @@ def create_topic(topic: Topic, x_token: str | None = Header()):
     
 
 @topics_router.put('/{id}')
-def update_best_reply(id: int, topic: Topic,  x_token: str | None = Header()):
-
+def update_best_reply(id: int, topic: Topic,  x_token: Optional[str] = Header(None)):
+    if not x_token:
+        return Unauthorized('You should have registration!')
+    
     existing_topic = topic_service.get_by_id(id)
     if existing_topic is None:
         return NotFound('Topic with that id doesn\'t exist')
