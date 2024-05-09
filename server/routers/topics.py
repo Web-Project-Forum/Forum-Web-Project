@@ -65,13 +65,19 @@ def get_topic_by_id(id: int, x_token: Optional[str] = Header(None)):
                     replies= reply_service.get_by_topic(topic.id))
     
             elif user.role == Role.USER:
-                data = category_service.check_if_user_have_access_for_category(user.id, topic.categories_id)
-                if data is not None:
-                    return TopicResponseModel(
-                    topic= topic,
-                    replies= reply_service.get_by_topic(topic.id))
+                category = category_service.get_by_id(topic.categories_id)
+                if category.is_private:
+                    data = category_service.check_if_user_have_access_for_category(user.id, topic.categories_id)
+                    if data:
+                        return TopicResponseModel(
+                        topic= topic,
+                        replies= reply_service.get_by_topic(topic.id))
+                    else:
+                        return Forbidden('You don\'t have permisions to view this topic!')
                 else:
-                    return Forbidden('You don\'t have permisions to view this topic!')
+                    return TopicResponseModel(
+                        topic= topic,
+                        replies= reply_service.get_by_topic(topic.id))
         else:
             category = category_service.get_by_id(topic.categories_id)
             if not category.is_private:
