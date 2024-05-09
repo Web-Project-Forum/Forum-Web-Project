@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import Annotated
 from pydantic import BaseModel, StringConstraints, field_validator
 from re import match
+from os import getenv
 
 class Category(BaseModel):
     id:int | None
@@ -78,7 +79,7 @@ class LoginData(BaseModel):
     password: str
 
 class Key:
-    KEY = 'notsecret'
+    KEY = getenv('KEY')
 
 
 class Reply(BaseModel):

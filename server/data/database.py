@@ -1,12 +1,13 @@
 from mariadb import connect
 from mariadb.connections import Connection
+from os import getenv
 
 
 def _get_connection() -> Connection:
     return connect(
         host='localhost',
         user='root',
-        password='1234',
+        password=getenv('PASSWORD_mariadb'),
         port=3306,
         database='webproject',
         autocommit = True
