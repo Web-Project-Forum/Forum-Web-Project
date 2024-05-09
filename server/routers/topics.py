@@ -15,8 +15,8 @@ class TopicResponseModel(BaseModel):
 
 @topics_router.get('/', response_model=list[Topic], )
 def get_topics(
-    skip: int | None = None,
-    take: int |None = None,
+    skip: int | None = 0,
+    take: int |None = 5,
     sorting: str | None = None,
     sort_by: str | None = None,
     search: str | None = None,
