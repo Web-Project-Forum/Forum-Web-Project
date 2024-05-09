@@ -35,7 +35,12 @@ def create_reply(reply: Reply, x_token: Optional[str] = Header(None)):
     user = get_user_or_raise_401(x_token)
     
     if not topic_service.exists(reply.topics_id):
-            return BadRequest(f'Topic {reply.topics_id} doesn\'t exist')
+            return BadRequest(f'Topic {reply.topics_id} doesn\'t exist!')
+    
+    topic = topic_service.get_by_id(reply.topics_id)
+    if topic.locked:
+        return BadRequest(f'Topic {reply.topics_id} is locked!') 
+    
     else:
         reply.author_id = user.id
         return reply_service.create(reply)

@@ -1,7 +1,7 @@
 from typing import Optional
 from fastapi import APIRouter, Header
 from pydantic import BaseModel
-from common.responses import BadRequest, InternalServerError, NotFound, Unauthorized
+from common.responses import BadRequest, Forbidden, NotFound, Unauthorized, Ok
 from data.models import Reply, Role, Topic
 from services import topic_service, category_service, reply_service
 from common.auth import get_user_or_raise_401
@@ -34,28 +34,20 @@ def get_topics(
                 return result
 
         elif user.role == Role.USER:
-            all_topics = topic_service.all(search, skip, take)
-            private_topics = []
-            for topic in all_topics:
-                data = category_service.check_if_user_have_access_for_category(user.id, topic.categories_id)
-                if data is not None:
-                    private_topics.append(topic)
+            private_topics = topic_service.all_non_private_for_user(user.id, search, skip, take)
+
             if sorting and (sorting == 'asc' or sorting == 'desc'):
                 return topic_service.sorting(private_topics, reverse=sorting == 'desc', attribute=sort_by)
             else:
                 return private_topics
             
     else: 
-        all_topics = topic_service.all(search, skip, take)
-        not_locked_topics = []
-        for topic in all_topics:
-            if not topic.locked:
-                not_locked_topics.append(topic)
+        all_topics = topic_service.all_non_private(search, skip, take)
 
         if sorting and (sorting == 'asc' or sorting == 'desc'):
-            return topic_service.sorting(not_locked_topics, reverse=sorting == 'desc', attribute=sort_by)
+            return topic_service.sorting(all_topics, reverse=sorting == 'desc', attribute=sort_by)
         else:
-            return not_locked_topics
+            return all_topics
 
 
 @topics_router.get('/{id}')
@@ -79,14 +71,15 @@ def get_topic_by_id(id: int, x_token: Optional[str] = Header(None)):
                     topic= topic,
                     replies= reply_service.get_by_topic(topic.id))
                 else:
-                    return BadRequest('You don\'t have permisions to view this topic!')
+                    return Forbidden('You don\'t have permisions to view this topic!')
         else:
-            if not topic.locked:
+            category = category_service.get_by_id(topic.categories_id)
+            if not category.is_private:
                 return TopicResponseModel(
                     topic= topic,
                     replies= reply_service.get_by_topic(topic.id))
             else:
-                return BadRequest(f'Topic with id {id} is locked!')
+                return Forbidden(f'Topic with id {id} is private!')
 
             
 
@@ -103,8 +96,12 @@ def create_topic(topic: Topic, x_token: Optional[str] = Header(None)):
         return BadRequest(f"Author id {topic.author_id} in the topic does not match the id {user.id} of the user!")
 
     if not category_service.exists(topic.categories_id):
-        return BadRequest(f'Category {topic.categories_id} does not exist')
+        return BadRequest(f'Category {topic.categories_id} does not exist!')
 
+    category = category_service.get_by_id(topic.categories_id)
+    if category.is_locked:
+        return BadRequest(f'Category {topic.categories_id} is locked!')
+    
     return topic_service.create(topic)
     
 
@@ -118,13 +115,17 @@ def update_best_reply(id: int, topic: Topic,  x_token: Optional[str] = Header(No
         return NotFound('Topic with that id doesn\'t exist')
     
     user = get_user_or_raise_401(x_token)
-    if user.id != topic.author_id:
-        return Unauthorized('You are not authoriszed to change this topic!')
+    if user.id == topic.author_id:
     
-    reply = reply_service.get_by_id(topic.best_reply_id)
-    if reply.topics_id != topic.id:
-        return InternalServerError("Inconsistent data: Topic's best reply does not belong to the topic!")
+        reply = reply_service.get_by_id(topic.best_reply_id)
+        if reply.topics_id != topic.id:
+            return BadRequest('Topic\'s best reply does not belong to the topic!')
 
-    return topic_service.update_best_reply_id(existing_topic, topic)
+        return topic_service.update(existing_topic, topic)
     
+    elif user.role == Role.ADMIN:
+        return topic_service.update(existing_topic, topic)
+    
+    else:
+        return Forbidden("You can not change the topic!")
 

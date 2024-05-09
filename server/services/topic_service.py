@@ -20,6 +20,45 @@ def all(search: str = None, skip: int = None, take: int = None):
 
 
 
+def all_non_private_for_user(user_id: int, search: str = None, skip: int = None, take: int = None):
+    if search is None:
+        data = read_query(
+            '''SELECT t.id, t.title, t.content, t.best_reply_id, t.locked, t.categories_id, t.author_id
+               FROM topics t
+               INNER JOIN categories c ON t.categories_id = c.id
+               WHERE c.is_private = 0 OR (c.is_private = 1 AND t.author_id = ?)
+               LIMIT ?, ?''', (user_id, skip, take))
+    else:
+        data = read_query(
+            '''SELECT t.id, t.title, t.content, t.best_reply_id, t.locked, t.categories_id, t.author_id
+               FROM topics t
+               INNER JOIN categories c ON t.categories_id = c.id
+               WHERE (c.is_private = 0 OR (c.is_private = 1 AND t.author_id = ?)) AND t.title LIKE ?
+               LIMIT ?, ?''', (user_id, f'%{search}%', skip, take))
+
+    return [Topic.from_query_result(*row) for row in data]
+
+
+def all_non_private(search: str = None, skip: int = None, take: int = None):
+    if search is None:
+        data = read_query(
+            '''SELECT t.id, t.title, t.content, t.best_reply_id, t.locked, t.categories_id, t.author_id
+               FROM topics t
+               JOIN categories c ON t.categories_id = c.id
+               WHERE c.is_private = 0
+               LIMIT ?, ?''', (skip, take))
+    else:
+        data = read_query(
+            '''SELECT t.id, t.title, t.content, t.best_reply_id, t.locked, t.categories_id, t.author_id
+               FROM topics t
+               JOIN categories c ON t.categories_id = c.id
+               WHERE t.title LIKE ? AND c.is_private = 0
+               LIMIT ?, ?''', (f'%{search}%', skip, take))
+
+    return [Topic.from_query_result(*row) for row in data]
+
+
+
 def get_by_id(id: int):
     data = read_query(
         '''SELECT id, title, content, best_reply_id, locked, categories_id, author_id
@@ -87,25 +126,24 @@ def exists(id: int):
 
 
 
-def update_best_reply_id(old: Topic, new: Topic):
+def update(old: Topic, new: Topic):
     merged = Topic(
         id = old.id,
-        title = old.title,
-        content = old.content,
+        title = new.title or old.title,
+        content = new.content or old.content,
         best_reply_id = new.best_reply_id or old.best_reply_id,
-        locked = old.locked,
-        categories_id = old.categories_id,
-        author_id =  old.author_id,
+        locked = new.locked or old.locked,
+        categories_id = new.categories_id or old.categories_id,
+        author_id = new.author_id or old.author_id,
         )
 
     update_query(
         '''UPDATE topics
-         SET
-           best_reply_id = ? 
-           WHERE id = ? 
+        SET
+            title = ?, content = ?, best_reply_id = ?, locked = ?, categories_id = ?, author_id = ? 
+        WHERE id = ? 
         ''',
-        (merged.best_reply_id, merged.id))
+        (merged.title, merged.content, merged.best_reply_id, merged.locked, merged.categories_id, merged.author_id, merged.id))
 
     return merged
-
 
