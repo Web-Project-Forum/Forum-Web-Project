@@ -1,4 +1,4 @@
-from data.database import insert_query, read_query, update_query
+from data.database import insert_query, read_query
 from data.models import Messages, ConversationsReport
 from datetime import datetime
 
@@ -27,7 +27,6 @@ def create(message: Messages, user_id:int, receiver_id:id):
     message.date = datetime.now().strftime("%H:%M:%S, %m/%d/%Y")
     message.sender_id = user_id
     message.receiver_id = receiver_id
-    
 
     return message
 

@@ -26,8 +26,6 @@ def get_message_by_id(id:int, x_token: str | None = Header()):
     
     user = get_user_or_raise_401(x_token)
 
-    #data = message_service.get_messages_with(user.id, id)
-
     return MessageResponseModel(
         user = user,
         messages = message_service.get_messages_with(user.id, id))

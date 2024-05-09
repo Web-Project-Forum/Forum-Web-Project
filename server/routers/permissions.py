@@ -56,7 +56,6 @@ def create_read_permission(permissions:Permission, x_token : str | None = Header
     return Ok(content= 'Read permission created!')
 
 
-
 @permissions_router.put('/')
 def update_permissions(permissions:Permission, x_token : str | None = Header()):
     if not x_token:

@@ -1,6 +1,5 @@
 from data.database import insert_query, read_query, update_query
 from data.models import VoteModel, Vote, VoteUpDownMaps
-from services import reply_service
 
 
 def create(reply_id:int, user_id:int, vote_model:VoteModel):
