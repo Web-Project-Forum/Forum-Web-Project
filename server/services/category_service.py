@@ -31,9 +31,6 @@ def all_non_private(search:str, skip:int, take:int):
     return (Category.from_query_result(*row) for row in data)
 
 def private(search: str, user_id: int, skip:int, take:int):
-    #categories_id = get_private_categories(user_id)
-    #if not categories_id:   # if we pass empty tuple as parametar, occur mariadb.ProgrammingError
-    #    categories_id = (0,)
 
     if search is None:
         data = read_query('''select id, name, is_private, is_locked
@@ -42,22 +39,12 @@ def private(search: str, user_id: int, skip:int, take:int):
                           or id in (SELECT category_id from permissions where user_id = ?) 
                           LIMIT ?, ?''', (user_id, skip, take))
 
-    
     else:
-        # It does't return the correct data with search-on in python but the same query works in the database
-        #data = read_query('''select id, name, is_private 
-        #                  from categories 
-        #                  where name like ? and(is_private = 0 or id in (?))''', ((f'%{search}%'), tuple(categories_id)))
-        
         data = read_query('''select id, name, is_private, is_locked  
                           from categories 
                           where name like ? and (is_private = 0
                           or id in (SELECT category_id from permissions where user_id = ?))) ''', ((f'%{search}%'), user_id,))
-        #data = []
-        #for el in without_search_data:
-        #    if search in el[1]:
-        #        data.append(el)
-        #
+
     return (Category.from_query_result(*row) for row in data)
 
 def get_by_id(id: int):

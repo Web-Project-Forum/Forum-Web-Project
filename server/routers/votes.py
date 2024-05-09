@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Header
-from data.models import VoteModel, Vote , VoteUpDownMaps
+from data.models import VoteModel, VoteUpDownMaps
 from services import vote_service
 from common.responses import BadRequest, Unauthorized, Forbidden
 from common.auth import get_user_or_raise_401
@@ -56,14 +56,13 @@ def upgrade_vote(reply_id:int, vote_model:VoteModel, x_token: str | None = Heade
     if old_vote.vote == VoteUpDownMaps.STR_TO_INT[vote_model.vote]:
         return BadRequest('Vote is the same as before!')
 
-
     data = vote_service.change_vote(old_vote, vote_model)
 
     return data
 
+
 @votes_router.get('/{reply_id}')
 def get_votes_total(reply_id:int):
-
 
     data = vote_service.total_vote(reply_id)
 

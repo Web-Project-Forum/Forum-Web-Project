@@ -5,7 +5,6 @@ from data.models import LoginData,User
 from services import users_service
 
 
-
 users_router = APIRouter(prefix='/users')
 
 
@@ -25,13 +24,6 @@ def user_info(x_token: str | None = Header()):
     if  not x_token :
         return BadRequest('No No')
     return get_user_or_raise_401(x_token)
-
-
-#@users_router.get('/orders', response_model=list[Order])
-#def user_info(x_token: str = Header()):
-#    user = get_user_or_raise_401(x_token)
-#
-#    return order_service.get_user_orders(user)
 
 
 @users_router.post('/register')

@@ -80,7 +80,7 @@ def create_category(category: Category, x_token: str | None = Header()):
     
     created_category = category_service.create(category)
 
-    return created_category #ResponseModel(category=created_category, products=[])
+    return created_category
 
 
 @categories_router.put('/{id}')

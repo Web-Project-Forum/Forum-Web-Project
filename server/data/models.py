@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import Annotated
-from pydantic import BaseModel, constr, StringConstraints, field_validator
+from pydantic import BaseModel, StringConstraints, field_validator
 from re import match
 
 class Category(BaseModel):
