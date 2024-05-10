@@ -36,6 +36,7 @@ As well you need to set a key word that is used to create secure tokens in file 
 
 ### 5) Once your server is on you can use `Postman` or your browser to check the functionality of the API
 - `https://www.postman.com/downloads/`
+- `http://127.0.0.1:8000/docs`
 
 
 ## Schema:
