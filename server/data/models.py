@@ -97,7 +97,10 @@ class Reply(BaseModel):
             author_id=author_id)
 
 
-TText = Annotated[str, StringConstraints(pattern=r'^\w{1,}$')]
+TText = Annotated[str, StringConstraints(pattern=r'^(\w{1,})')]
+
+class MessageModel(BaseModel):
+    text: TText
 
 class Messages(BaseModel):
     id: int | None

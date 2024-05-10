@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Header
 from common.responses import NotFound, BadRequest, Unauthorized
 from common.auth import get_user_or_raise_401
-from data.models import Messages, MessageResponseModel
+from data.models import Messages, MessageResponseModel, MessageModel
 from services import message_service
 
 messages_router = APIRouter(prefix = '/messages')
@@ -32,7 +32,7 @@ def get_message_by_id(id:int, x_token: str | None = Header()):
 
 
 @messages_router.post('/{id}')
-def send_message_to_user(message:Messages, 
+def send_message_to_user(message:MessageModel, 
                          id:int,
                          x_token:str | None = Header()):
     

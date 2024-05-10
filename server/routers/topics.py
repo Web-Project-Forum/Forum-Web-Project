@@ -95,8 +95,6 @@ def create_topic(topic: Topic, x_token: Optional[str] = Header(None)):
         return Unauthorized('You should have registration!')
     
     user = get_user_or_raise_401(x_token)
-    if user.role != Role.USER:
-        return Unauthorized('You are not authoriszed to create topic!')
     
     if user.id != topic.author_id:
         return BadRequest(f"Author id {topic.author_id} in the topic does not match the id {user.id} of the user!")

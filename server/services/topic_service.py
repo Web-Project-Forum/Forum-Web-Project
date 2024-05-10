@@ -95,7 +95,7 @@ def get_by_category(category_id: int):
 
 def sorting(topics: list[Topic], *, attribute='best_reply_id', reverse=False):
     if attribute == 'best_reply_id':
-        def sort_fn(p: Topic): return p.best_reply
+        def sort_fn(p: Topic): return p.best_reply_id
     elif attribute == 'title':
         def sort_fn(p: Topic): return p.title
     else:
