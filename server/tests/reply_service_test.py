@@ -1,43 +1,64 @@
 import unittest
 from unittest.mock import patch
-from data.models import Reply, ReplyResponse, OrderUpdate, Product, User
-from server.services import reply_service as service
+from data.models import Reply
+from services import reply_service 
 
 TEST_TEXT = "anything"
 TEST_TOPICS_ID = 2
 TEST_AUTHOR_ID = 1
 
 
-def create_reply(reply_id):
-    return Reply(
-        id = reply_id,
-        text = TEST_TEXT,
-        topics_id = TEST_TOPICS_ID,
-        author_id = TEST_AUTHOR_ID)
+def fake_reply():
+    reply = Reply(
+        id = 1,
+        text = "anything",
+        topics_id = 2,
+        author_id = 1)
+    return reply
 
-class OrdersService_Should(unittest.TestCase):
-    def test_get_by_id_returns_correct_reply(self):
-        with patch('services.reply_service.read_query') as get_reply_func:
-            # Arrange
-            test_id = 5
-            get_reply_func.return_value = [
-                (test_id, TEST_TEXT, TEST_TOPICS_ID, TEST_AUTHOR_ID)]
-            expected = create_reply(test_id)
-
-            # Act
-            result = service.get_by_id(test_id)
-
-            # Assert
-            self.assertEqual(expected, result)
-
-    def test_create_returns_reply_with_generated_id(self):
+class RepliesService_Should(unittest.TestCase):
+    @patch('services.reply_service.read_query')
+    def test_get_all(self, mock_read_query):
         # Arrange
-        test_reply = Reply(text=TEST_TEXT, topics_id=TEST_TOPICS_ID, author_id=TEST_AUTHOR_ID)
+        mock_read_query.return_value = [(1, TEST_TEXT, TEST_TOPICS_ID, TEST_AUTHOR_ID)]
         # Act
-        result = create_reply(test_reply)
-
+        replies = reply_service.all(search="test")
+        replies = list(replies)
+        expected_output = fake_reply()
         # Assert
-        self.assertIsInstance(result.id, int)
-        self.assertEqual(result.text, TEST_TEXT)
-        self.assertEqual(result.topics_id, TEST_TOPICS_ID)
-        self.assertEqual(result.author_id, TEST_AUTHOR_ID)
+        self.assertEqual([expected_output], replies)
+
+
+    @patch('services.reply_service.read_query')
+    def test_get_by_id(self, mock_read_query):
+        # Arrange
+        mock_read_query.return_value = [(1, TEST_TEXT, TEST_TOPICS_ID, TEST_AUTHOR_ID)]
+        # Act
+        topics = reply_service.get_by_id(1)
+        expected_output = fake_reply()
+        # Assert
+        self.assertEqual(expected_output, topics)
+
+   
+
+    @patch('services.reply_service.insert_query')
+    def test_create_reply(self, mock_insert_query):
+        # Arrange
+        mock_insert_query.return_value = 1
+        # Act
+        reply = Reply(id=1, text=TEST_TEXT, topics_id=TEST_TOPICS_ID, author_id=TEST_AUTHOR_ID)
+        created_reply = reply_service.create(reply)
+        expected_output = fake_reply()
+        # Assert
+        self.assertEqual(expected_output, created_reply)
+
+    @patch('services.reply_service.read_query')
+    def test_get_by_topic(self, mock_read_query):
+        # Arrange
+        mock_read_query.return_value = [(1, TEST_TEXT, TEST_TOPICS_ID, TEST_AUTHOR_ID)]
+        # Act
+        replies = reply_service.get_by_topic(2)
+        replies = list(replies)
+        expected_output = fake_reply()
+         # Assert
+        self.assertEqual([expected_output], replies)
