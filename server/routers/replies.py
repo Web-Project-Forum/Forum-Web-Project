@@ -15,7 +15,6 @@ def get_replies(search: str | None = None):
     return result
 
 
-
 @replies_router.get('/{id}')
 def get_reply_by_id(id: int):
     reply = reply_service.get_by_id(id)

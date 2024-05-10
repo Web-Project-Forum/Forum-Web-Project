@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Header
-from data.models import VoteModel, VoteUpDownMaps
+from data.models import VoteModel, VoteUpDownMaps, Role
 from services import vote_service
 from common.responses import BadRequest, Unauthorized, Forbidden
 from common.auth import get_user_or_raise_401
@@ -20,8 +20,11 @@ def create_vote(reply_id:int, vote_model:VoteModel, x_token: str | None = Header
     if not reply_service.get_by_id(reply_id):
         return BadRequest(f'Reply {reply_id} doesn\'t exist!')
     
-    if not vote_service.check_if_user_can_vote(reply_id, user.id):
-        return BadRequest('You don\'t have permission to vote for this reply!')
+    if user.role == Role.ADMIN:
+        pass
+    else:
+        if not vote_service.check_if_user_can_vote(reply_id, user.id):
+            return BadRequest('You don\'t have permission to vote for this reply!')
     
     if vote_service.get_vote(reply_id, user.id):
         return BadRequest(f'You can change only your vote!')
@@ -41,8 +44,11 @@ def upgrade_vote(reply_id:int, vote_model:VoteModel, x_token: str | None = Heade
     if not reply_service.get_by_id(reply_id):
         return BadRequest(f'Reply {reply_id} doesn\'t exist!')
     
-    if not vote_service.check_if_user_can_vote(reply_id, user.id):
-        return BadRequest('You don\'t have permission to vote for this reply!')
+    if user.role == Role.ADMIN:
+        pass
+    else:
+        if not vote_service.check_if_user_can_vote(reply_id, user.id):
+            return BadRequest('You don\'t have permission to vote for this reply!')
     
 
     old_vote = vote_service.get_vote(reply_id, user.id)
