@@ -8,13 +8,10 @@ def get_users(category_id):
     
     return (Permission.from_query_result(*row) for row in data)
 
-def give_all_permissions(permission:Permission, category_id:int, user_id:int):
+def give_permissions(permission:Permission):
     insert_query('insert into permissions(category_id, user_id, write_permission) values(?,?,?)', \
-                 (category_id, user_id, True))
+                 (permission.category_id, permission.user_id, permission.write_permission))
     
-def give_read_permission(category_id:int, user_id:int):
-    insert_query('insert into permissions(category_id, user_id, write_permission) values(?,?,?)', \
-                 (category_id, user_id, False))
     
 def update_permission(permissions:Permission, category_id:int, user_id:int):
     update_query(
