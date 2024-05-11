@@ -103,6 +103,10 @@ def create_topic(topic: Topic, x_token: Optional[str] = Header(None)):
         return BadRequest(f'Category {topic.categories_id} does not exist!')
 
     category = category_service.get_by_id(topic.categories_id)
+    
+    if not category_service.check_if_user_have_access_for_category(user.id, topic.categories_id):
+        return Forbidden(f'You don\'t have access for this category!')
+
     if category.is_locked:
         return BadRequest(f'Category {topic.categories_id} is locked!')
     

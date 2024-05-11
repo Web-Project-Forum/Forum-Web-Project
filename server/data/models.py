@@ -50,7 +50,7 @@ TEmail = Annotated[str, StringConstraints(pattern = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0
 
 class User(BaseModel):
     id: int | None
-    username: TUsername
+    username: str
     password: str
     role: str
     email:str
@@ -66,6 +66,19 @@ class User(BaseModel):
             password=password,
             role=role,
             email=email)
+    
+    @field_validator('username')
+    def validate_username(cls, username:str):
+        pattern = r'^\w{2,30}$'
+        
+        return username if match(pattern, username) is not None else False
+
+    
+    @field_validator('password')
+    def validate_password(cls, password:str):
+        pattern = r'^\w{6,30}$'
+        
+        return password if match(pattern, password) is not None else False
     
     @field_validator('email')
     def validate_email(cls, email:str):

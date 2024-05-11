@@ -38,7 +38,7 @@ def create(username: str, password: str, email) -> User | None:
             'INSERT INTO users(username, password, role, email) VALUES (?,?,?,?)',
             (username, hashed_password, Role.USER, email))
 
-        return User(id=generated_id, username=username, password='*********', role=Role.USER,email=email)
+        return User(id=generated_id, username=username, password='xxxxxxxxx', role=Role.USER,email=email)
 
     except IntegrityError:
         # mariadb raises this error when a constraint is violated
