@@ -76,6 +76,9 @@ class User(BaseModel):
     
     @field_validator('password')
     def validate_password(cls, password:str):
+        if len(password) == 64:
+            return  password           
+            
         pattern = r'^\w{6,30}$'
         
         return password if match(pattern, password) is not None else False

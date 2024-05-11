@@ -24,17 +24,19 @@ def all_non_private_for_user(user_id: int, search: str = None, skip: int = None,
     if search is None:
         data = read_query(
             '''SELECT t.id, t.title, t.content, t.best_reply_id, t.locked, t.categories_id, t.author_id
-               FROM topics t
-               INNER JOIN categories c ON t.categories_id = c.id
-               WHERE c.is_private = 0 OR (c.is_private = 1 AND t.author_id = ?)
-               LIMIT ?, ?''', (user_id, skip, take))
+               FROM topics t 
+               JOIN categories c ON t.categories_id = c.id
+               WHERE c.is_private = 0 OR 
+               c.id in (SELECT category_id from permissions where user_id = ?)
+               LIMIT ?,?''', (user_id, skip, take))
     else:
         data = read_query(
             '''SELECT t.id, t.title, t.content, t.best_reply_id, t.locked, t.categories_id, t.author_id
-               FROM topics t
-               INNER JOIN categories c ON t.categories_id = c.id
-               WHERE (c.is_private = 0 OR (c.is_private = 1 AND t.author_id = ?)) AND t.title LIKE ?
-               LIMIT ?, ?''', (user_id, f'%{search}%', skip, take))
+               FROM topics t 
+               JOIN categories c ON t.categories_id = c.id
+               WHERE t.title like ? and (c.is_private = 0 OR 
+               c.id in (SELECT category_id from permissions where user_id = ?))
+               LIMIT ?,?''', (f'%{search}%', user_id, skip, take))
 
     return [Topic.from_query_result(*row) for row in data]
 

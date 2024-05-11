@@ -79,15 +79,15 @@ def delete(category_id):
     update_query('DELETE FROM categories WHERE categories_id = ?', (category_id,))
     update_query('DELETE FROM categories WHERE id = ?', (category_id,))
 
-def sorting(Categorys: list[Category], *, attribute='', reverse=False):
+def sorting(Categories: list[Category], *, attribute='', reverse=False):
     if attribute == 'is_private':
-        def sorting_fn(p: Category): return p.price
+        def sorting_fn(p: Category): return p.is_private
     elif attribute == 'name':
         def sorting_fn(p: Category): return p.name
     else:
         def sorting_fn(p: Category): return p.id
 
-    return sorted(Categorys, key=sorting_fn, reverse=reverse)
+    return sorted(Categories, key=sorting_fn, reverse=reverse)
 
 def get_private_categories(user_id:int) -> set: 
     data = read_query(
