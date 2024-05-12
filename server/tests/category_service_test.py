@@ -66,7 +66,6 @@ class CategoryServiceTests(unittest.TestCase):
         # Act
         category_service.delete(category_id)
         # Assert
-        # Check if update_query was called twice, once for each deletion query
         mock_update_query.assert_any_call('DELETE FROM categories WHERE categories_id = ?', (category_id,))
         mock_update_query.assert_any_call('DELETE FROM categories WHERE id = ?', (category_id,))
 

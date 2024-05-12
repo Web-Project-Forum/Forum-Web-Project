@@ -1,7 +1,5 @@
 import unittest
 from unittest.mock import MagicMock, patch
-
-import jwt
 from data.models import User
 from services import users_service
 
@@ -31,7 +29,7 @@ class UsersServiceTests(unittest.TestCase):
     @patch('services.users_service.insert_query')
     def test_create(self, mock_insert_query):
         # Arrange
-        mock_insert_query.return_value = 1  # generated_id
+        mock_insert_query.return_value = 1 
         # Act
         user = users_service.create('name', 'password', 'test@example.com')
         # Assert
