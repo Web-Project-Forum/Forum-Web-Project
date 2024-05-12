@@ -38,14 +38,14 @@ DEFAULT CHARACTER SET = latin1;
 CREATE TABLE IF NOT EXISTS `webproject`.`users` (
   `id` INT(11) NOT NULL AUTO_INCREMENT,
   `username` VARCHAR(45) NOT NULL,
-  `password` VARCHAR(45) NOT NULL,
+  `password` VARCHAR(121) NOT NULL,
   `role` VARCHAR(45) NOT NULL DEFAULT 'user',
   `email` VARCHAR(45) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE INDEX `username_UNIQUE` (`username` ASC) VISIBLE,
   UNIQUE INDEX `email_UNIQUE` (`email` ASC) VISIBLE)
 ENGINE = InnoDB
-AUTO_INCREMENT = 8
+AUTO_INCREMENT = 33
 DEFAULT CHARACTER SET = latin1;
 
 
@@ -72,7 +72,7 @@ CREATE TABLE IF NOT EXISTS `webproject`.`messages` (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
-AUTO_INCREMENT = 13
+AUTO_INCREMENT = 43
 DEFAULT CHARACTER SET = latin1;
 
 
@@ -82,7 +82,6 @@ DEFAULT CHARACTER SET = latin1;
 CREATE TABLE IF NOT EXISTS `webproject`.`permissions` (
   `category_id` INT(11) NOT NULL,
   `user_id` INT(11) NOT NULL,
-  `read_permission` TINYINT(4) NOT NULL DEFAULT 0,
   `write_permission` TINYINT(4) NOT NULL DEFAULT 0,
   PRIMARY KEY (`category_id`, `user_id`),
   INDEX `fk_permissions_categories_idx` (`category_id` ASC) VISIBLE,
@@ -127,7 +126,7 @@ CREATE TABLE IF NOT EXISTS `webproject`.`topics` (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
-AUTO_INCREMENT = 5
+AUTO_INCREMENT = 12
 DEFAULT CHARACTER SET = latin1;
 
 
@@ -153,7 +152,7 @@ CREATE TABLE IF NOT EXISTS `webproject`.`replies` (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
-AUTO_INCREMENT = 4
+AUTO_INCREMENT = 7
 DEFAULT CHARACTER SET = latin1;
 
 
@@ -164,6 +163,7 @@ CREATE TABLE IF NOT EXISTS `webproject`.`votes` (
   `replies_id` INT(11) NOT NULL,
   `users_id` INT(11) NOT NULL,
   `vote` INT(11) NOT NULL,
+  `is_change` TINYINT(4) NOT NULL DEFAULT 0,
   PRIMARY KEY (`replies_id`, `users_id`),
   INDEX `fk_votes_replies_idx` (`replies_id` ASC) VISIBLE,
   INDEX `fk_votes_users_idx` (`users_id` ASC) VISIBLE,
